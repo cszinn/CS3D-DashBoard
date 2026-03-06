@@ -16,7 +16,10 @@ import {
     Clock,
     Send,
     Download,
-    DollarSign
+    DollarSign,
+    Circle,
+    Settings,
+    Wrench
 } from 'lucide-react';
 
 const PRINTER_DB = {
