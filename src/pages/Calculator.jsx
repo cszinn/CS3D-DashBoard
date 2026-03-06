@@ -27,6 +27,36 @@ const PRINTER_DB = {
     'adventurer5m': { name: 'Flashforge Adventurer 5M Pro', watts: 350, price: 4200, life: 5000 }
 };
 
+const SectionHeader = ({ icon: Icon, title }) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
+        <div style={{ padding: '8px', borderRadius: '8px', backgroundColor: 'rgba(0, 224, 255, 0.1)', border: '1px solid rgba(0, 224, 255, 0.2)' }}>
+            <Icon size={18} color="var(--color-accent)" />
+        </div>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'white' }}>{title}</h3>
+    </div>
+);
+
+const InputGroup = ({ label, id, children, fullWidth = false }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: fullWidth ? '100%' : 'auto', flex: fullWidth ? 'none' : 1 }}>
+        <label htmlFor={id} style={{ fontSize: '0.85rem', color: '#8b949e', fontWeight: '500' }}>{label}</label>
+        {children}
+    </div>
+);
+
+const inputStyle = {
+    padding: '10px 14px',
+    backgroundColor: '#0d1117',
+    border: '1px solid #30363d',
+    borderRadius: '8px',
+    color: 'white',
+    fontSize: '0.9rem',
+    outline: 'none',
+    width: '100%',
+    transition: 'border-color 0.2s ease'
+};
+
+const fmt = (val) => (parseFloat(val) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
 export default function Calculator() {
     const { user } = useAuth();
 
@@ -211,35 +241,6 @@ export default function Calculator() {
         }
     };
 
-    const fmt = (val) => val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-    const SectionHeader = ({ icon: Icon, title }) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.25rem' }}>
-            <div style={{ padding: '8px', borderRadius: '8px', backgroundColor: 'rgba(0, 224, 255, 0.1)', border: '1px solid rgba(0, 224, 255, 0.2)' }}>
-                <Icon size={18} color="var(--color-accent)" />
-            </div>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '600', color: 'white' }}>{title}</h3>
-        </div>
-    );
-
-    const InputGroup = ({ label, id, children, fullWidth = false }) => (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', width: fullWidth ? '100%' : 'auto', flex: fullWidth ? 'none' : 1 }}>
-            <label htmlFor={id} style={{ fontSize: '0.85rem', color: '#8b949e', fontWeight: '500' }}>{label}</label>
-            {children}
-        </div>
-    );
-
-    const inputStyle = {
-        padding: '10px 14px',
-        backgroundColor: '#0d1117',
-        border: '1px solid #30363d',
-        borderRadius: '8px',
-        color: 'white',
-        fontSize: '0.9rem',
-        outline: 'none',
-        width: '100%',
-        transition: 'border-color 0.2s ease'
-    };
 
     return (
         <div style={{ color: 'white', maxWidth: '1200px', margin: '0 auto', paddingBottom: '4rem' }}>
