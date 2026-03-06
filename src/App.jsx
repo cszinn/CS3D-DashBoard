@@ -4,6 +4,7 @@ import { RealTimeProvider } from './context/RealTimeContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Sidebar from './components/Sidebar'
 import Dashboard from './components/Dashboard'
+import Calculator from './pages/Calculator'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import './App.css'
@@ -14,7 +15,10 @@ function DashboardLayout() {
       <div className="app-layout" style={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
         <Sidebar />
         <main className="main-content" style={{ flex: 1, padding: '2rem', height: '100vh', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
-          <Dashboard />
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/calculadora" element={<Calculator />} />
+          </Routes>
         </main>
       </div>
     </RealTimeProvider>

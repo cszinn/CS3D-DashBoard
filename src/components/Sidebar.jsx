@@ -1,14 +1,36 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
+import {
+    LayoutDashboard,
+    Calculator as CalcIcon,
+    Layers,
+    Box,
+    DollarSign,
+    Settings,
+    Zap,
+    LogOut
+} from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const Sidebar = () => {
+    const { user, signOut } = useAuth();
+
     const menuItems = [
-        { name: 'Dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-        { name: 'Calculadora', icon: 'M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z' },
-        { name: 'Catálogo', icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z' },
-        { name: 'Produtos', icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
-        { name: 'Financeiro', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
-        { name: 'Configurações', icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z' }
+        { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+        { name: 'Calculadora', path: '/calculadora', icon: CalcIcon },
+        { name: 'Catálogo', path: '/catalogo', icon: Layers },
+        { name: 'Produtos', path: '/produtos', icon: Box },
+        { name: 'Financeiro', path: '/financeiro', icon: DollarSign },
+        { name: 'Configurações', path: '/configuracoes', icon: Settings }
     ];
+
+    const handleSignOut = async () => {
+        try {
+            await signOut();
+        } catch (error) {
+            console.error('Erro ao sair:', error.message);
+        }
+    };
 
     return (
         <aside style={{
@@ -17,59 +39,85 @@ const Sidebar = () => {
             borderRight: '1px solid var(--color-border)',
             display: 'flex',
             flexDirection: 'column',
-            padding: '1.5rem 1rem'
+            padding: '1.5rem 1rem',
+            height: '100vh',
+            position: 'sticky',
+            top: 0
         }}>
-            <div style={{ padding: '0 1rem 2rem 1rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Logo */}
+            <div style={{ padding: '0 1rem 2.5rem 1rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{
-                    width: '32px', height: '32px', borderRadius: '8px',
-                    background: 'var(--gradient-accent)', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    width: '36px', height: '36px', borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #00e0ff 0%, #00b8cc 100%)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(0, 224, 255, 0.25)'
                 }}>
-                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '20px', height: '20px', color: '#fff', strokeWidth: 2 }}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
+                    <Zap size={20} color="#060b14" strokeWidth={2.5} />
                 </div>
-                <h1 style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--color-text-primary)' }}>Company</h1>
+                <h1 style={{ fontSize: '1.3rem', fontWeight: '800', color: 'white', letterSpacing: '-0.5px' }}>STL<span style={{ color: 'var(--color-accent)' }}>HUB</span></h1>
             </div>
 
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {/* Menu */}
+            <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                 {menuItems.map((item, index) => (
-                    <a key={index} href="#" style={{
-                        display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px', borderRadius: 'var(--border-radius-md)',
-                        color: index === 0 ? 'var(--color-accent)' : 'var(--color-text-secondary)',
-                        backgroundColor: index === 0 ? 'rgba(0, 229, 255, 0.1)' : 'transparent',
-                        transition: 'var(--transition-fast)',
-                        fontWeight: index === 0 ? '600' : '500',
-                        textDecoration: 'none'
-                    }}
-                        onMouseEnter={(e) => {
-                            if (index !== 0) {
-                                e.currentTarget.style.color = 'var(--color-text-primary)';
-                                e.currentTarget.style.backgroundColor = 'var(--color-bg-card-hover)';
-                            }
-                        }}
-                        onMouseLeave={(e) => {
-                            if (index !== 0) {
-                                e.currentTarget.style.color = 'var(--color-text-secondary)';
-                                e.currentTarget.style.backgroundColor = 'transparent';
-                            }
-                        }}>
-                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '20px', height: '20px', strokeWidth: 2 }}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
-                            {item.name === 'Configurações' && <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />}
-                        </svg>
+                    <NavLink
+                        key={index}
+                        to={item.path}
+                        style={({ isActive }) => ({
+                            display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '12px',
+                            color: isActive ? 'var(--color-accent)' : '#8b949e',
+                            backgroundColor: isActive ? 'rgba(0, 224, 255, 0.08)' : 'transparent',
+                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                            fontWeight: isActive ? '600' : '500',
+                            textDecoration: 'none',
+                            border: isActive ? '1px solid rgba(0, 224, 255, 0.1)' : '1px solid transparent'
+                        })}
+                    >
+                        <item.icon size={20} strokeWidth={index === 0 ? 2.5 : 2} />
                         {item.name}
-                    </a>
+                    </NavLink>
                 ))}
             </nav>
 
-            <div style={{ marginTop: 'auto', padding: '1rem', borderTop: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--color-bg-card-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    CS
+            {/* User Info & Logout */}
+            <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '1px solid #232830' }}>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0 8px 1.5rem 8px' }}>
+                    <div style={{
+                        width: '42px', height: '42px', borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #232830 0%, #171a1f 100%)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        border: '1px solid #30363d', fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--color-accent)'
+                    }}>
+                        {user?.email?.substring(0, 2).toUpperCase() || 'CS'}
+                    </div>
+                    <div style={{ overflow: 'hidden' }}>
+                        <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {user?.user_metadata?.first_name || 'Carlos Santos'}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: '#8b949e' }}>Plano Pro</div>
+                    </div>
                 </div>
-                <div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: '600' }}>Carlos Santos</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>Admin</div>
-                </div>
+
+                <button
+                    onClick={handleSignOut}
+                    style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '12px',
+                        color: '#ef4444', backgroundColor: 'transparent', transition: 'all 0.2s ease',
+                        fontWeight: '600', border: '1px solid transparent', cursor: 'pointer', fontSize: '0.9rem'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.08)';
+                        e.currentTarget.style.border = '1px solid rgba(239, 68, 68, 0.1)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                        e.currentTarget.style.border = '1px solid transparent';
+                    }}
+                >
+                    <LogOut size={20} />
+                    Sair da Conta
+                </button>
             </div>
         </aside>
     );
