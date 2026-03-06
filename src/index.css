@@ -2,16 +2,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Fundo Escuro Marinho (Navy Dark) */
-  --color-bg-main: #060b14;
-  --color-bg-sidebar: #0a1120;
-  --color-bg-card: #0f172a;
-  --color-bg-card-hover: #1e293b;
+  /* Fundo Escuro Neutro (Dark Gray) */
+  --color-bg-main: #121418;
+  --color-bg-sidebar: #171a1f;
+  --color-bg-card: #1e2229;
+  --color-bg-card-hover: #262b34;
 
   /* Detalhes Verde Água / Ciano */
-  --color-accent: #00e5ff; /* Cyan pop */
+  --color-accent: #00e0ff; /* Cyan pop */
   --color-accent-hover: #00b8cc;
-  --color-accent-secondary: #2dd4bf; /* Teal secondary */
+  --color-accent-secondary: #00a3b8; /* Teal secondary */
   
   /* Textos / Branco */
   --color-text-primary: #ffffff;
