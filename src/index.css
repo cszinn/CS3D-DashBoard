@@ -1,0 +1,86 @@
+/* Reset & Base Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Fundo Escuro Marinho (Navy Dark) */
+  --color-bg-main: #060b14;
+  --color-bg-sidebar: #0a1120;
+  --color-bg-card: #0f172a;
+  --color-bg-card-hover: #1e293b;
+
+  /* Detalhes Verde Água / Ciano */
+  --color-accent: #00e5ff; /* Cyan pop */
+  --color-accent-hover: #00b8cc;
+  --color-accent-secondary: #2dd4bf; /* Teal secondary */
+  
+  /* Textos / Branco */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #94a3b8;
+  --color-text-muted: #64748b;
+
+  /* Bordas & Divisores */
+  --color-border: #1e293b;
+  --color-border-light: #334155;
+
+  /* Outros Tokens */
+  --border-radius-md: 12px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 24px;
+  --transition-fast: 0.2s ease-in-out;
+  
+  /* Gradientes (opcional, para usar em logos ou bordas) */
+  --gradient-accent: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-secondary) 100%);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-bg-main);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* Utilitários *Glassmorphism* */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Scrollbar Customizada (Opcional, mas dá um toque premium) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-light);
+}
