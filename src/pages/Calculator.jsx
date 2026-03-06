@@ -15,7 +15,8 @@ import {
     CheckCircle2,
     Clock,
     Send,
-    Download
+    Download,
+    DollarSign
 } from 'lucide-react';
 
 const PRINTER_DB = {
@@ -69,15 +70,15 @@ export default function Calculator() {
     const [peso, setPeso] = useState('');
 
     // States para Custos
-    const [custoKg, setCustoKg] = useState('');
+    const [custoKg, setCustoKg] = useState(100);
     const [impressoraSelected, setImpressoraSelected] = useState('custom');
-    const [consumoW, setConsumoW] = useState('');
-    const [custoKwh, setCustoKwh] = useState('');
-    const [custoFixoMes, setCustoFixoMes] = useState('');
-    const [pecasEstMes, setPecasEstMes] = useState('');
-    const [valorImpressora, setValorImpressora] = useState('');
-    const [vidaUtil, setVidaUtil] = useState('');
-    const [margemFalhas, setMargemFalhas] = useState('');
+    const [consumoW, setConsumoW] = useState(350);
+    const [custoKwh, setCustoKwh] = useState(0.85);
+    const [custoFixoMes, setCustoFixoMes] = useState(0);
+    const [pecasEstMes, setPecasEstMes] = useState(50);
+    const [valorImpressora, setValorImpressora] = useState(2000);
+    const [vidaUtil, setVidaUtil] = useState(5000);
+    const [margemFalhas, setMargemFalhas] = useState(10);
 
     // Acessórios
     const [acessorios, setAcessorios] = useState([]);
@@ -85,9 +86,9 @@ export default function Calculator() {
     const [novoAcessorioCusto, setNovoAcessorioCusto] = useState('');
 
     // Config de Venda
-    const [markup, setMarkup] = useState('');
-    const [imposto, setImposto] = useState('');
-    const [taxaMaquininha, setTaxaMaquininha] = useState('');
+    const [markup, setMarkup] = useState(100);
+    const [imposto, setImposto] = useState(0);
+    const [taxaMaquininha, setTaxaMaquininha] = useState(0);
     const [incluirTaxas, setIncluirTaxas] = useState(false);
 
     // Resultados
