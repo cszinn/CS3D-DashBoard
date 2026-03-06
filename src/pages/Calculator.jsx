@@ -60,6 +60,7 @@ const fmt = (val) => (parseFloat(val) || 0).toLocaleString('pt-BR', { style: 'cu
 
 export default function Calculator() {
     const { user } = useAuth();
+    const [activeTab, setActiveTab] = useState('cliente'); // 'cliente' ou 'producao'
 
     // States para Dados do Modelo
     const [nomeProjeto, setNomeProjeto] = useState('');
@@ -120,63 +121,67 @@ export default function Calculator() {
         }
     }, [impressoraSelected]);
 
+    // Efeito para Cálculo Real-time (Sincronizado com index.html original)
     useEffect(() => {
-        const tempoH = (parseFloat(horas) || 0) + ((parseFloat(minutos) || 0) / 60);
-        const pesoNum = parseFloat(peso) || 0;
-        const custoKgNum = parseFloat(custoKg) || 0;
-        const consumoNum = parseFloat(consumoW) || 0;
-        const custoKwhNum = parseFloat(custoKwh) || 0;
-        const custoFixoMesNum = parseFloat(custoFixoMes) || 0;
-        const pecasEstMesNum = parseFloat(pecasEstMes) || 0;
-        const valorImpNum = parseFloat(valorImpressora) || 0;
-        const vidaUtilNum = parseFloat(vidaUtil) || 1;
-        const falhasNum = parseFloat(margemFalhas) || 0;
-        const markupNum = parseFloat(markup) || 0;
-        const impostoNum = parseFloat(imposto) || 0;
-        const taxaNum = parseFloat(taxaMaquininha) || 0;
+        const getVal = (v) => parseFloat(v) || 0;
+
+        const hNum = getVal(horas);
+        const mNum = getVal(minutos);
+        const pesoPeca = getVal(peso);
+        const custoKgNum = getVal(custoKg);
+        const consumoWNum = getVal(consumoW);
+        const custoKwhNum = getVal(custoKwh);
+        const custoFixoMesNum = getVal(custoFixoMes);
+        const unidadesMesNum = getVal(pecasEstMes);
+        const valorImpNum = getVal(valorImpressora);
+        const vidaUtilNum = getVal(vidaUtil);
+        const falhasNum = getVal(margemFalhas);
+        const markupNum = getVal(markup);
+        const impostoNum = getVal(imposto);
+        const taxaNum = getVal(taxaMaquininha);
         const qtdNum = parseInt(quantidade) || 1;
 
-        let totalAcessorios = acessorios.reduce((acc, curr) => acc + curr.custo, 0);
+        const totalAcessorios = acessorios.reduce((acc, curr) => acc + curr.custo, 0);
+        const tempoH = hNum + (mNum / 60);
 
-        const cFilamento = (custoKgNum / 1000) * pesoNum;
-        const cEnergia = (consumoNum / 1000) * tempoH * custoKwhNum;
-        const cDepreciacao = (valorImpNum / vidaUtilNum) * tempoH;
-
-        // Matemática Original: Custo Fixo rateado por unidade, adicionado uma única vez ao total do lote
-        const cFixoCalculado = (pecasEstMesNum > 0 && custoFixoMesNum > 0) ? (custoFixoMesNum / pecasEstMesNum) : 0;
+        // --- FÓRMULAS ORIGINAIS DO INDEX.HTML ---
+        const cFilamento = (custoKgNum / 1000) * pesoPeca;
+        const cEnergia = (consumoWNum / 1000) * tempoH * custoKwhNum;
+        const cFixoUn = unidadesMesNum > 0 ? custoFixoMesNum / unidadesMesNum : 0;
+        const cDepreciacao = vidaUtilNum > 0 ? (valorImpNum / vidaUtilNum) * tempoH : 0;
 
         const subtotal = cFilamento + cEnergia + cDepreciacao;
         const cFalhas = subtotal * (falhasNum / 100);
 
-        // Custo do Lote = Soma de tudo (Tempo e Peso já são do lote total)
-        const custoTotalLote = subtotal + cFixoCalculado + totalAcessorios + cFalhas;
+        // Custo Total Lote (conforme original: subtotal (lote) + fixo (unidade) + acessórios + falhas)
+        const custoTotalProdLote = subtotal + cFixoUn + totalAcessorios + cFalhas;
 
-        let basePrecoVenda = custoTotalLote * (1 + markupNum / 100);
-        let precoFinal = basePrecoVenda;
+        let precoVendaTotal = custoTotalProdLote * (1 + markupNum / 100);
+        let lucroBruto = precoVendaTotal - custoTotalProdLote;
 
         if (incluirTaxas) {
-            const taxaTotalPercent = (impostoNum + taxaNum) / 100;
-            if (taxaTotalPercent < 0.99) {
-                precoFinal = basePrecoVenda / (1 - taxaTotalPercent);
-            }
+            const taxasTotais = (impostoNum + taxaNum) / 100;
+            if (taxasTotais < 0.99) precoVendaTotal = precoVendaTotal / (1 - taxasTotais);
         }
 
-        const descontosTaxas = precoFinal * ((impostoNum + taxaNum) / 100);
-        const lucroLiq = precoFinal - custoTotalLote - descontosTaxas;
+        const custoUnit = qtdNum > 0 ? custoTotalProdLote / qtdNum : 0;
+        const precoUnit = qtdNum > 0 ? precoVendaTotal / qtdNum : 0;
+        const descontoTaxas = precoVendaTotal * ((impostoNum + taxaNum) / 100);
+        const lucroLiquido = precoVendaTotal - custoTotalProdLote - descontoTaxas;
 
         setResultados({
             custoFilamento: cFilamento,
             custoEnergia: cEnergia,
-            custoFixo: cFixoCalculado,
+            custoFixo: cFixoUn,
             custoDepreciacao: cDepreciacao,
             custoAcessorios: totalAcessorios,
             custoFalhas: cFalhas,
-            custoTotalLote: custoTotalLote,
-            custoUnitario: qtdNum > 0 ? custoTotalLote / qtdNum : 0,
-            precoTotalLote: precoFinal,
-            precoUnitario: qtdNum > 0 ? precoFinal / qtdNum : 0,
-            lucroBruto: precoFinal - custoTotalLote,
-            lucroLiquido: lucroLiq
+            custoTotalLote: custoTotalProdLote,
+            custoUnitario: custoUnit,
+            precoTotalLote: precoVendaTotal,
+            precoUnitario: precoUnit,
+            lucroBruto: lucroBruto,
+            lucroLiquido: lucroLiquido
         });
 
     }, [horas, minutos, peso, custoKg, consumoW, custoKwh, custoFixoMes, pecasEstMes, valorImpressora, vidaUtil, margemFalhas, acessorios, markup, imposto, taxaMaquininha, incluirTaxas, quantidade]);
@@ -232,12 +237,65 @@ export default function Calculator() {
         }
     };
 
-    return (
-        <div style={{ color: 'white', maxWidth: '1200px', margin: '0 auto', paddingBottom: '4rem' }}>
+    // --- COMPONENTES AUXILIARES DE UI (ESTILO PREMIUM) ---
+    const TabButton = ({ id, label, icon: Icon }) => (
+        <button
+            onClick={() => setActiveTab(id)}
+            style={{
+                display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '8px',
+                backgroundColor: activeTab === id ? 'rgba(0, 224, 255, 0.1)' : 'transparent',
+                border: activeTab === id ? '1px solid var(--color-accent)' : '1px solid transparent',
+                color: activeTab === id ? 'var(--color-accent)' : '#8b949e',
+                cursor: 'pointer', fontSize: '0.9rem', fontWeight: 'bold', transition: 'all 0.3s ease'
+            }}
+        >
+            <Icon size={16} /> {label}
+        </button>
+    );
 
-            <header style={{ marginBottom: '2.5rem' }}>
-                <h2 style={{ fontSize: '1.8rem', fontWeight: '700', marginBottom: '0.5rem' }}>Calculadora de Orçamentos</h2>
-                <p style={{ color: '#8b949e' }}>Obtenha precisão total baseada na sua calculadora original.</p>
+    const DonutChart = ({ data }) => {
+        const total = data.reduce((acc, curr) => acc + curr.value, 0);
+        let cumulativePercent = 0;
+
+        const getCoordinatesForPercent = (percent) => {
+            const x = Math.cos(2 * Math.PI * percent);
+            const y = Math.sin(2 * Math.PI * percent);
+            return [x, y];
+        };
+
+        return (
+            <div style={{ position: 'relative', width: '200px', height: '200px', margin: '0 auto' }}>
+                <svg viewBox="-1 -1 2 2" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%' }}>
+                    {data.map((slice, i) => {
+                        if (slice.value === 0) return null;
+                        const [startX, startY] = getCoordinatesForPercent(cumulativePercent);
+                        cumulativePercent += slice.value / total;
+                        const [endX, endY] = getCoordinatesForPercent(cumulativePercent);
+                        const largeArcFlag = slice.value / total > 0.5 ? 1 : 0;
+                        const pathData = [
+                            `M ${startX} ${startY}`,
+                            `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
+                            `L 0 0`,
+                        ].join(' ');
+                        return <path key={i} d={pathData} fill={slice.color} />;
+                    })}
+                    <circle r="0.65" fill="#0d1117" cx="0" cy="0" />
+                </svg>
+            </div>
+        );
+    };
+
+    return (
+        <div style={{ color: 'white', maxWidth: '1300px', margin: '0 auto', padding: '1rem 2rem 4rem' }}>
+
+            <header style={{ marginBottom: '2rem' }}>
+                <h1 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '4px' }}>Calculadora</h1>
+                <p style={{ color: '#8b949e', fontSize: '0.95rem' }}>Orçamentos para clientes e registro interno de produção</p>
+
+                <div style={{ display: 'flex', gap: '12px', marginTop: '1.5rem' }}>
+                    <TabButton id="cliente" label="Orçamento para Cliente" icon={Package} />
+                    <TabButton id="producao" label="Perfil de Produção" icon={Printer} />
+                </div>
             </header>
 
             {msg.text && (
@@ -252,158 +310,183 @@ export default function Calculator() {
                 </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '2.5rem' }}>
 
-                {/* Lado Esquerdo - Forms */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                {/* COLUNA ESQUERDA - INPUTS CATEGORIZADOS */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
-                    <section className="glass-panel" style={{ padding: '1.5rem', borderRadius: '16px' }}>
-                        <SectionHeader icon={UploadCloud} title="Modelo e Quantidade" />
-                        <div
-                            style={{ border: '2px dashed #30363d', borderRadius: '12px', padding: '1.5rem', textAlign: 'center', backgroundColor: 'rgba(255,255,255,0.02)', cursor: 'pointer', marginBottom: '1.5rem' }}
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            <UploadCloud size={24} color="#8b949e" style={{ marginBottom: '8px' }} />
-                            <p style={{ fontSize: '0.9rem', color: '#c9d1d9' }}>Solte o <strong>.gcode</strong> aqui</p>
-                            <input type="file" ref={fileInputRef} accept=".gcode,.gco" style={{ display: 'none' }} onChange={handleFileUpload} />
+                    <section className="glass-panel" style={{ padding: '2rem', borderRadius: '20px', border: '1px solid #30363d' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2rem' }}>
+                            <div style={{ backgroundColor: 'rgba(0, 224, 255, 0.1)', padding: '8px', borderRadius: '8px' }}>
+                                <UploadCloud size={18} color="var(--color-accent)" />
+                            </div>
+                            <h2 style={{ fontSize: '1.2rem', fontWeight: '700' }}>Dados da Impressão</h2>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                            <InputGroup label="Projeto / Cliente"><input style={inputStyle} value={nomeProjeto} onChange={e => setNomeProjeto(e.target.value)} placeholder="Ex: Miniatura Dragão" /></InputGroup>
-                            <InputGroup label="Quantidade"><input style={inputStyle} type="number" value={quantidade} onChange={e => setQuantidade(e.target.value)} /></InputGroup>
-                        </div>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                            <InputGroup label="Tempo Total (Lote)">
-                                <div style={{ display: 'flex', gap: '6px' }}>
-                                    <input style={inputStyle} type="number" value={horas} onChange={e => setHoras(e.target.value)} placeholder="Hrs" />
-                                    <input style={inputStyle} type="number" value={minutos} onChange={e => setMinutos(e.target.value)} placeholder="Min" />
-                                </div>
-                            </InputGroup>
-                            <InputGroup label="Peso Total (Lote)">
-                                <div style={{ position: 'relative' }}>
-                                    <input style={inputStyle} type="number" value={peso} onChange={e => setPeso(e.target.value)} placeholder="Grams" />
-                                    <span style={{ position: 'absolute', right: '12px', top: '10px', fontSize: '0.75rem', color: '#8b949e' }}>g</span>
-                                </div>
+                        {/* MATERIAL */}
+                        <div style={{ marginBottom: '2rem' }}>
+                            <p style={{ fontSize: '0.75rem', color: '#8b949e', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '1rem', letterSpacing: '1px' }}>❂ Material</p>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                                <InputGroup label="Tipo de Filamento" id="tipo">
+                                    <select style={inputStyle}>
+                                        <option>PLA</option>
+                                        <option>ABS</option>
+                                        <option>PETG</option>
+                                        <option>Resina</option>
+                                    </select>
+                                </InputGroup>
+                                <InputGroup label="Custo do Filamento (R$/kg)" id="custoKg">
+                                    <input style={inputStyle} type="number" value={custoKg} onChange={e => setCustoKg(e.target.value)} />
+                                </InputGroup>
+                            </div>
+                            <InputGroup label="Peso da Peça (gramas)" id="peso" fullWidth>
+                                <input style={inputStyle} type="number" value={peso} onChange={e => setPeso(e.target.value)} />
                             </InputGroup>
                         </div>
-                    </section>
 
-                    <section className="glass-panel" style={{ padding: '1.5rem', borderRadius: '16px' }}>
-                        <SectionHeader icon={Printer} title="Custos e Equipamento" />
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                            <InputGroup label="Custo por Kg Filamento"><input style={inputStyle} type="number" value={custoKg} onChange={e => setCustoKg(e.target.value)} /></InputGroup>
-                            <InputGroup label="Selecionar Impressora">
-                                <select style={inputStyle} value={impressoraSelected} onChange={e => setImpressoraSelected(e.target.value)}>
-                                    {Object.entries(PRINTER_DB).map(([k, p]) => <option key={k} value={k}>{p.name}</option>)}
-                                </select>
-                            </InputGroup>
+                        {/* TEMPO E ENERGIA */}
+                        <div style={{ marginBottom: '2rem' }}>
+                            <p style={{ fontSize: '0.75rem', color: '#8b949e', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '1rem', letterSpacing: '1px' }}>🕒 Tempo e Energia</p>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.5rem', marginBottom: '1rem' }}>
+                                <InputGroup label="Tempo de Impressão">
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <div style={{ position: 'relative', flex: 1 }}>
+                                            <input style={inputStyle} type="number" value={horas} onChange={e => setHoras(e.target.value)} />
+                                            <span style={{ position: 'absolute', right: '12px', top: '10px', fontSize: '0.8rem', color: '#484f58' }}>H</span>
+                                        </div>
+                                        <div style={{ position: 'relative', flex: 1 }}>
+                                            <input style={inputStyle} type="number" value={minutos} onChange={e => setMinutos(e.target.value)} />
+                                            <span style={{ position: 'absolute', right: '12px', top: '10px', fontSize: '0.8rem', color: '#484f58' }}>M</span>
+                                        </div>
+                                    </div>
+                                </InputGroup>
+                                <InputGroup label="Potência da Impressora (W)">
+                                    <input style={inputStyle} type="number" value={consumoW} onChange={e => setConsumoW(e.target.value)} />
+                                </InputGroup>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1rem' }}>
+                                <InputGroup label="Custo da Energia (R$/kWh)">
+                                    <input style={inputStyle} type="number" value={custoKwh} onChange={e => setCustoKwh(e.target.value)} />
+                                </InputGroup>
+                                <InputGroup label="Selecionar Impressora">
+                                    <select style={inputStyle} value={impressoraSelected} onChange={e => setImpressoraSelected(e.target.value)}>
+                                        {Object.entries(PRINTER_DB).map(([k, p]) => <option key={k} value={k}>{p.name}</option>)}
+                                    </select>
+                                </InputGroup>
+                            </div>
                         </div>
-                        <div style={{ display: 'flex', gap: '1rem', padding: '1rem', backgroundColor: '#111418', borderRadius: '12px' }}>
-                            <InputGroup label="Consumo (W)"><input style={inputStyle} type="number" value={consumoW} onChange={e => setConsumoW(e.target.value)} /></InputGroup>
-                            <InputGroup label="Energia (kWh)"><input style={inputStyle} type="number" value={custoKwh} onChange={e => setCustoKwh(e.target.value)} /></InputGroup>
-                            <InputGroup label="Falhas (%)"><input style={inputStyle} type="number" value={margemFalhas} onChange={e => setMargemFalhas(e.target.value)} /></InputGroup>
+
+                        {/* DEPRECIAÇÃO */}
+                        <div>
+                            <p style={{ fontSize: '0.75rem', color: '#8b949e', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '1rem', letterSpacing: '1px' }}>♨ Depreciação e Desgaste</p>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                                <InputGroup label="Valor da Impressora (R$)">
+                                    <input style={inputStyle} type="number" value={valorImpressora} onChange={e => setValorImpressora(e.target.value)} />
+                                </InputGroup>
+                                <InputGroup label="Vida Útil (Horas)">
+                                    <input style={inputStyle} type="number" value={vidaUtil} onChange={e => setVidaUtil(e.target.value)} />
+                                </InputGroup>
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                                <InputGroup label="Falhas / Risco (%)">
+                                    <input style={inputStyle} type="number" value={margemFalhas} onChange={e => setMargemFalhas(e.target.value)} />
+                                </InputGroup>
+                                <InputGroup label="Quantidade do Lote">
+                                    <input style={inputStyle} type="number" value={quantidade} onChange={e => setQuantidade(e.target.value)} />
+                                </InputGroup>
+                            </div>
                         </div>
                     </section>
-
-                    <section className="glass-panel" style={{ padding: '1.5rem', borderRadius: '16px' }}>
-                        <SectionHeader icon={DollarSign} title="Custos Fixos Mentais" />
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                            <InputGroup label="Custo Fixo Mensal (R$)"><input style={inputStyle} type="number" value={custoFixoMes} onChange={e => setCustoFixoMes(e.target.value)} /></InputGroup>
-                            <InputGroup label="Peças Est. / Mês"><input style={inputStyle} type="number" value={pecasEstMes} onChange={e => setPecasEstMes(e.target.value)} /></InputGroup>
-                        </div>
-                    </section>
-
-                    <section className="glass-panel" style={{ padding: '1.5rem', borderRadius: '16px' }}>
-                        <SectionHeader icon={TrendingUp} title="Configuração de Venda" />
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                            <InputGroup label="Markup (%)"><input style={inputStyle} type="number" value={markup} onChange={e => setMarkup(e.target.value)} /></InputGroup>
-                            <InputGroup label="Imposto (%)"><input style={inputStyle} type="number" value={imposto} onChange={e => setImposto(e.target.value)} /></InputGroup>
-                            <InputGroup label="Taxa Cartão (%)"><input style={inputStyle} type="number" value={taxaMaquininha} onChange={e => setTaxaMaquininha(e.target.value)} /></InputGroup>
-                        </div>
-                        <div style={{ display: 'flex', gap: '8px', fontSize: '0.85rem' }}>
-                            <input type="checkbox" checked={incluirTaxas} onChange={e => setIncluirTaxas(e.target.checked)} />
-                            <label>Incluir taxas no cálculo do lucro</label>
-                        </div>
-                    </section>
-
                 </div>
 
-                {/* Lado Direito - Resumo de Preços (3 Colunas) */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                {/* COLUNA DIREITA - ANÁLISE E RESUMO */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
 
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        📊 Resumo de Preços
-                    </h3>
+                    {/* CARD PREÇO SUGERIDO */}
+                    <div className="glass-panel" style={{ padding: '2rem', borderRadius: '20px', textAlign: 'center', border: '1px solid var(--color-accent)' }}>
+                        <p style={{ fontSize: '0.85rem', color: '#8b949e', textTransform: 'uppercase', letterSpacing: '1px' }}>Preço de Venda Sugerido</p>
+                        <h2 style={{ fontSize: '3rem', color: 'var(--color-accent)', fontWeight: '900', margin: '1rem 0' }}>{fmt(resultados.precoTotalLote)}</h2>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
-
-                        {/* Card 1: Produção */}
-                        <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px', border: '1px solid #30363d' }}>
-                            <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                                <p style={{ fontSize: '0.85rem', color: '#8b949e', textTransform: 'uppercase' }}>Custo Unitário (Produção)</p>
-                                <h4 style={{ fontSize: '1.5rem', color: 'var(--color-accent)', fontWeight: 'bold' }}>{fmt(resultados.custoUnitario)}</h4>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px' }}>
+                            <div style={{ padding: '8px 16px', borderRadius: '12px', backgroundColor: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', fontSize: '0.75rem', border: '1px solid rgba(56, 189, 248, 0.2)' }}>
+                                MARKUP {markup}%
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.85rem' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span color="#8b949e">Filamento</span><span>{fmt(resultados.custoFilamento)}</span></div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span color="#8b949e">Energia</span><span>{fmt(resultados.custoEnergia)}</span></div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span color="#8b949e">Custo Fixo</span><span>{fmt(resultados.custoFixo)}</span></div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span color="#8b949e">Amortização</span><span>{fmt(resultados.custoDepreciacao)}</span></div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span color="#8b949e">Acessórios</span><span>{fmt(resultados.custoAcessorios)}</span></div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}><span color="#8b949e">Falhas</span><span>{fmt(resultados.custoFalhas)}</span></div>
-                                <hr style={{ border: '0', borderTop: '1px solid #232830' }} />
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: 'var(--color-accent)' }}>
-                                    <span>Custo Total do Lote</span><span>{fmt(resultados.custoTotalLote)}</span>
-                                </div>
+                            <div style={{ padding: '8px 16px', borderRadius: '12px', backgroundColor: 'rgba(16, 185, 129, 0.1)', color: '#10b981', fontSize: '0.75rem', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                                LUCRO {fmt(resultados.lucroLiquido)}
+                            </div>
+                            <div style={{ padding: '8px 16px', borderRadius: '12px', backgroundColor: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', fontSize: '0.75rem', border: '1px solid rgba(168, 85, 247, 0.2)' }}>
+                                MARGEM {((resultados.lucroLiquido / (resultados.precoTotalLote || 1)) * 100).toFixed(0)}%
                             </div>
                         </div>
-
-                        {/* Card 2 & 3 (Lojista/Consumidor) */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-
-                            <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px', border: '1px solid #30363d' }}>
-                                <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                                    <p style={{ fontSize: '0.75rem', color: '#8b949e' }}>Preço Unitário (Lojista)</p>
-                                    <h4 style={{ fontSize: '1.3rem', color: 'var(--color-accent)', fontWeight: 'bold' }}>{fmt(resultados.precoUnitario)}</h4>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span color="#8b949e">Lucro/Mão de Obra</span><span>{fmt(resultados.lucroBruto)}</span></div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span color="#8b949e">Lucro Líquido</span><span>{fmt(resultados.lucroLiquido)}</span></div>
-                                    <hr style={{ border: '0', borderTop: '1px solid #232830' }} />
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: 'var(--color-accent)' }}>
-                                        <span>Total do Lote</span><span>{fmt(resultados.precoTotalLote)}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="glass-panel" style={{ padding: '1.5rem', borderRadius: '12px', border: '1px solid #30363d' }}>
-                                <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
-                                    <p style={{ fontSize: '0.75rem', color: '#8b949e' }}>Preço Unitário (Consumidor)</p>
-                                    <h4 style={{ fontSize: '1.3rem', color: 'var(--color-accent)', fontWeight: 'bold' }}>{fmt(resultados.precoUnitario)}</h4>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.8rem' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span color="#8b949e">Lucro/Mão de Obra</span><span>{fmt(resultados.lucroBruto)}</span></div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span color="#8b949e">Lucro Líquido</span><span>{fmt(resultados.lucroLiquido)}</span></div>
-                                    <hr style={{ border: '0', borderTop: '1px solid #232830' }} />
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', color: 'var(--color-accent)' }}>
-                                        <span>Total do Lote</span><span>{fmt(resultados.precoTotalLote)}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)', gap: '0.75rem', marginTop: '1rem' }}>
-                        <button onClick={saveBudget} className="btn-save" style={{ backgroundColor: '#f97316', color: 'white', padding: '10px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', border: 'none', fontWeight: 'bold', fontSize: '0.8rem' }}>
-                            <Save size={16} /> Salvar Interno
+                    {/* GRÁFICO DE DISTRIBUIÇÃO */}
+                    <div className="glass-panel" style={{ padding: '2rem', borderRadius: '20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+                            <Clock size={16} color="var(--color-accent)" />
+                            <h3 style={{ fontSize: '1rem', fontWeight: 'bold' }}>Distribuição de Custos</h3>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+                            <DonutChart data={[
+                                { name: 'Material', value: resultados.custoFilamento, color: '#38bdf8' },
+                                { name: 'Energia', value: resultados.custoEnergia, color: '#eab308' },
+                                { name: 'Amortização', value: resultados.custoDepreciacao, color: '#a855f7' },
+                                { name: 'Falhas', value: resultados.custoFalhas, color: '#ef4444' },
+                                { name: 'Acessórios', value: resultados.custoAcessorios, color: '#f97316' },
+                            ]} />
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '0.75rem', color: '#8b949e' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#38bdf8' }} /> Material</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#eab308' }} /> Energia</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#a855f7' }} /> Máquina</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><div style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#ef4444' }} /> Risco</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* ANÁLISE DETALHADA */}
+                    <div className="glass-panel" style={{ padding: '2rem', borderRadius: '20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '1.5rem' }}>
+                            <TrendingUp size={16} color="var(--color-accent)" />
+                            <h3 style={{ fontSize: '1rem', fontWeight: 'bold' }}>Análise de Custos</h3>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ fontSize: '0.85rem' }}>📦 Material (Filamento)</div>
+                                <div style={{ fontWeight: 'bold' }}>{fmt(resultados.custoFilamento)}</div>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ fontSize: '0.85rem' }}>⚡ Energia Elétrica</div>
+                                <div style={{ fontWeight: 'bold' }}>{fmt(resultados.custoEnergia)}</div>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ fontSize: '0.85rem' }}>🛠️ Desgaste / Amortização</div>
+                                <div style={{ fontWeight: 'bold' }}>{fmt(resultados.custoDepreciacao)}</div>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ fontSize: '0.85rem' }}>⚠️ Margem de Risco</div>
+                                <div style={{ fontWeight: 'bold' }}>{fmt(resultados.custoFalhas)}</div>
+                            </div>
+                            <hr style={{ border: 'none', borderTop: '1px solid #30363d' }} />
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'var(--color-accent)', fontWeight: 'bold' }}>
+                                <div>CUSTO TOTAL DO LOTE</div>
+                                <div>{fmt(resultados.custoTotalLote)}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* AÇÕES */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                        <button onClick={saveBudget} className="btn-save" style={{ backgroundColor: '#f97316', padding: '14px', borderRadius: '12px', border: 'none', color: 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <Save size={18} /> Salvar
                         </button>
-                        <button className="btn-export" style={{ backgroundColor: '#10b981', color: 'white', padding: '10px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'not-allowed', border: 'none', fontWeight: 'bold', fontSize: '0.8rem' }}>
-                            <Download size={16} /> PDF Cliente
+                        <button style={{ backgroundColor: '#10b981', padding: '14px', borderRadius: '12px', border: 'none', color: 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <Download size={18} /> PDF
                         </button>
-                        <button className="btn-wa" style={{ backgroundColor: '#22c55e', color: 'white', padding: '10px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', border: 'none', fontWeight: 'bold', fontSize: '0.8rem' }}>
-                            <Send size={16} /> WhatsApp
+                        <button style={{ backgroundColor: '#22c55e', padding: '14px', borderRadius: '12px', border: 'none', color: 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <Send size={18} /> WhatsApp
                         </button>
                     </div>
 
