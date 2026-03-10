@@ -45,16 +45,36 @@ const Sidebar = () => {
             top: 0
         }}>
             {/* Logo */}
-            <div style={{ padding: '0 1rem 2.5rem 1rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ padding: '0 1rem 1rem 1rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{
-                    width: '36px', height: '36px', borderRadius: '10px',
-                    background: 'linear-gradient(135deg, #00e0ff 0%, #00b8cc 100%)',
+                    width: '32px', height: '32px', borderRadius: '8px',
+                    background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 4px 12px rgba(0, 224, 255, 0.25)'
+                    boxShadow: '0 4px 12px rgba(234, 88, 12, 0.25)'
                 }}>
-                    <Zap size={20} color="#060b14" strokeWidth={2.5} />
+                    <Zap size={18} color="white" strokeWidth={2.5} />
                 </div>
-                <h1 style={{ fontSize: '1.3rem', fontWeight: '800', color: 'white', letterSpacing: '-0.5px' }}>STL<span style={{ color: 'var(--color-accent)' }}>HUB</span></h1>
+                <h1 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'white', letterSpacing: '-0.5px' }}>STL<span style={{ color: '#ea580c' }}>Hub</span></h1>
+            </div>
+
+            {/* User Info - NOW AT TOP */}
+            <div style={{ padding: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{
+                        width: '36px', height: '36px', borderRadius: '50%',
+                        background: 'var(--color-bg-main)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        border: '1px solid var(--color-border)', fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--color-accent)'
+                    }}>
+                        {user?.email?.substring(0, 2).toUpperCase() || 'CS'}
+                    </div>
+                    <div style={{ overflow: 'hidden' }}>
+                        <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {user?.user_metadata?.first_name || 'Carlos Santos'}
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--color-accent)', textTransform: 'uppercase', fontWeight: '700' }}>Plano Free</div>
+                    </div>
+                </div>
             </div>
 
             {/* Menu */}
@@ -79,31 +99,13 @@ const Sidebar = () => {
                 ))}
             </nav>
 
-            {/* User Info & Logout */}
-            <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '1px solid #232830' }}>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0 8px 1.5rem 8px' }}>
-                    <div style={{
-                        width: '42px', height: '42px', borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #232830 0%, #171a1f 100%)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        border: '1px solid #30363d', fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--color-accent)'
-                    }}>
-                        {user?.email?.substring(0, 2).toUpperCase() || 'CS'}
-                    </div>
-                    <div style={{ overflow: 'hidden' }}>
-                        <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {user?.user_metadata?.first_name || 'Carlos Santos'}
-                        </div>
-                        <div style={{ fontSize: '0.75rem', color: '#8b949e' }}>Plano Pro</div>
-                    </div>
-                </div>
-
+            {/* Footer Logout */}
+            <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                 <button
                     onClick={handleSignOut}
                     style={{
                         width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '12px',
-                        color: '#ef4444', backgroundColor: 'transparent', transition: 'all 0.2s ease',
+                        color: 'var(--color-error)', backgroundColor: 'transparent', transition: 'all 0.2s ease',
                         fontWeight: '600', border: '1px solid transparent', cursor: 'pointer', fontSize: '0.9rem'
                     }}
                     onMouseEnter={(e) => {

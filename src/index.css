@@ -1,35 +1,38 @@
 /* Reset & Base Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700;800&display=swap');
 
 :root {
-  /* Fundo Escuro Neutro (Dark Gray) */
-  --color-bg-main: #121418;
-  --color-bg-sidebar: #171a1f;
-  --color-bg-card: #1e2229;
-  --color-bg-card-hover: #262b34;
+  /* Fundo Escuro Profundo (Custom Navy) */
+  --color-bg-main: #0e0e14;
+  --color-bg-sidebar: #131318;
+  --color-bg-card: #131318;
+  --color-bg-card-hover: #4b4b72;
 
-  /* Detalhes Verde Água / Ciano */
-  --color-accent: #00e0ff; /* Cyan pop */
+  /* Detalhes Ciano / Azul / Verde */
+  --color-accent: #00e0ff;
   --color-accent-hover: #00b8cc;
-  --color-accent-secondary: #00a3b8; /* Teal secondary */
-  
-  /* Textos / Branco */
-  --color-text-primary: #ffffff;
+  --color-accent-secondary: #0ea5e9;
+
+  /* Textos / Tipografia */
+  --color-text-primary: #f8fafc;
   --color-text-secondary: #94a3b8;
   --color-text-muted: #64748b;
+  --color-muted-foreground: #94a3b8;
 
-  /* Bordas & Divisores */
+  /* Bordas & Inputs */
   --color-border: #1e293b;
   --color-border-light: #334155;
+  --color-secondary: #1e293b33;
+  /* Transparência para campos */
 
   /* Outros Tokens */
-  --border-radius-md: 12px;
-  --border-radius-lg: 16px;
-  --border-radius-xl: 24px;
-  --transition-fast: 0.2s ease-in-out;
-  
-  /* Gradientes (opcional, para usar em logos ou bordas) */
-  --gradient-accent: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-secondary) 100%);
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --transition-fast: 0.15s ease-in-out;
+
+  /* Gradientes */
+  --gradient-accent: linear-gradient(135deg, #00e0ff 0%, #0ea5e9 100%);
 }
 
 * {
@@ -62,11 +65,314 @@ button {
 
 /* Utilitários *Glassmorphism* */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.bg-main {
+  background-color: var(--color-bg-main) !important;
+}
+
+.bg-sidebar {
+  background-color: var(--color-bg-sidebar) !important;
+}
+
+.bg-card {
+  background-color: var(--color-bg-card) !important;
+}
+
+.bg-secondary {
+  background-color: var(--color-secondary) !important;
+}
+
+.border-border {
+  border-color: var(--color-border) !important;
+}
+
+.text-muted-foreground {
+  color: var(--color-muted-foreground) !important;
+}
+
+.text-primary {
+  color: var(--color-accent) !important;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.glow-border {
+  border: 1px solid var(--color-border);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.glow-border:hover {
+  border-color: rgba(0, 224, 255, 0.3) !important;
+  box-shadow: 0 0 20px rgba(0, 224, 255, 0.05), 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Utilitários Flex & Grid */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.items-start {
+  align-items: flex-start;
+}
+
+.items-end {
+  align-items: flex-end;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-1 {
+  gap: 0.25rem;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-3 {
+  gap: 0.75rem;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+.gap-6 {
+  gap: 1.5rem;
+}
+
+.gap-8 {
+  gap: 2rem;
+}
+
+.grid {
+  display: grid;
+}
+
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+
+.flex-1 {
+  flex: 1 1 0%;
+}
+
+@media (min-width: 768px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .md\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .md\:flex-row {
+    flex-direction: row;
+  }
+}
+
+@media (min-width: 1280px) {
+  .xl\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Espaçamento */
+.p-2 {
+  padding: 0.5rem;
+}
+
+.p-3 {
+  padding: 0.75rem;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.p-6 {
+  padding: 1.5rem;
+}
+
+.pt-4 {
+  padding-top: 1rem;
+}
+
+.mt-6 {
+  margin-top: 1.5rem;
+}
+
+.space-y-1\.5>*+* {
+  margin-top: 0.375rem;
+}
+
+.space-y-3>*+* {
+  margin-top: 0.75rem;
+}
+
+.space-y-4>*+* {
+  margin-top: 1rem;
+}
+
+.space-y-6>*+* {
+  margin-top: 1.5rem;
+}
+
+/* Tipografia & Bordas */
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.font-black {
+  font-weight: 900;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
+
+.tracking-widest {
+  letter-spacing: 0.1em;
+}
+
+.rounded-lg {
+  border-radius: 8px;
+}
+
+.rounded-xl {
+  border-radius: 12px;
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+.border {
+  border: 1px solid var(--color-border);
+}
+
+.border-t {
+  border-top: 1px solid var(--color-border);
+}
+
+.border-transparent {
+  border-color: transparent;
+}
+
+.border-border\/50 {
+  border-color: rgba(30, 41, 59, 0.5);
+}
+
+.bg-border\/50 {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+
+.bg-secondary\/50 {
+  background-color: rgba(15, 23, 42, 0.5);
+}
+
+/* Miscelânea */
+.sticky {
+  position: sticky;
+}
+
+.top-6 {
+  top: 1.5rem;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.duration-200 {
+  transition-duration: 200ms;
+}
+
+.duration-500 {
+  transition-duration: 500ms;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-10 {
+  height: 2.5rem;
+}
+
+.h-12 {
+  height: 3rem;
+}
+
+.h-full {
+  height: 100%;
+}
+
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Scrollbar Customizada (Opcional, mas dá um toque premium) */
@@ -74,13 +380,16 @@ button {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--color-bg-main);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--color-border);
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-border-light);
 }
