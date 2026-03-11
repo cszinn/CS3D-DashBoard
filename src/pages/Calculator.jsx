@@ -486,15 +486,15 @@ export default function Calculator() {
     const TabButton = ({ id, label, icon: Icon }) => (
         <button
             onClick={() => setActiveTab(id)}
-            className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 h-10 ${activeTab === id
+            className={`inline-flex items-center justify-center gap-2 rounded-lg text-xs md:text-sm font-medium transition-all duration-200 min-h-[40px] ${activeTab === id
                 ? 'bg-primary/10 text-primary border border-primary/50 shadow-[0_0_15px_rgba(0,224,255,0.1)]'
                 : 'text-muted-foreground hover:bg-secondary border border-transparent'
                 }`}
             style={activeTab === id
-                ? { backgroundColor: 'rgba(0, 224, 255, 0.1)', borderColor: 'var(--color-accent)', color: 'var(--color-accent)', padding: '8px 32px' }
-                : { padding: '8px 48px' }}
+                ? { backgroundColor: 'rgba(0, 224, 255, 0.1)', borderColor: 'var(--color-accent)', color: 'var(--color-accent)', padding: '8px 12px', flex: 1 }
+                : { padding: '8px 12px', flex: 1 }}
         >
-            <Icon size={16} /> {label}
+            <Icon size={16} style={{ flexShrink: 0 }} /> <span style={{ lineHeight: 1.2 }}>{label}</span>
         </button>
     );
 
@@ -986,13 +986,13 @@ export default function Calculator() {
                                 <div
                                     key={proj.id}
                                     onClick={() => loadProject(proj)}
-                                    className="px-5 rounded-xl border border-border bg-card hover:border-primary/50 transition-all cursor-pointer group flex items-center justify-between gap-4 w-full"
+                                    className="project-card px-5 rounded-xl border border-border bg-card hover:border-primary/50 transition-all cursor-pointer group flex items-center justify-between gap-4 w-full"
                                     style={{
-                                        height: '110px',
+                                        minHeight: '110px',
                                         boxShadow: '0 4px 10px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                                     }}
                                 >
-                                    <div className="flex items-center gap-5 flex-1" style={{ minWidth: 0 }}>
+                                    <div className="project-card-left flex items-center gap-5 flex-1" style={{ minWidth: 0 }}>
                                         <div className="p-3 bg-secondary/30 rounded-xl text-primary/80 group-hover:text-primary group-hover:bg-primary/10 transition-colors" style={{ flexShrink: 0 }}>
                                             <Package size={22} />
                                         </div>
@@ -1011,8 +1011,8 @@ export default function Calculator() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center justify-end gap-10" style={{ flexShrink: 0 }}>
-                                        <div className="flex items-center gap-10">
+                                    <div className="project-card-right flex items-center justify-end gap-10" style={{ flexShrink: 0 }}>
+                                        <div className="project-card-stats flex items-center gap-10">
                                             <div style={{ textAlign: 'right' }}>
                                                 <p className="text-muted-foreground uppercase font-bold tracking-wider" style={{ fontSize: '11px', marginBottom: '4px', opacity: 0.8 }}>Preço Venda</p>
                                                 <p className="font-mono font-bold text-sky-400" style={{ fontSize: '15px', whiteSpace: 'nowrap' }}>{fmt(proj.preco_venda_final)}</p>

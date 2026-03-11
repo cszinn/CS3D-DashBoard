@@ -33,7 +33,7 @@ const Sidebar = () => {
     };
 
     return (
-        <aside style={{
+        <aside className="sidebar-container" style={{
             width: '260px',
             backgroundColor: 'var(--color-bg-sidebar)',
             borderRight: '1px solid var(--color-border)',
@@ -45,7 +45,7 @@ const Sidebar = () => {
             top: 0
         }}>
             {/* Logo */}
-            <div style={{ padding: '0 1rem 1rem 1rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="sidebar-header" style={{ padding: '0 1rem 1rem 1rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div style={{
                     width: '32px', height: '32px', borderRadius: '8px',
                     background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
@@ -58,7 +58,7 @@ const Sidebar = () => {
             </div>
 
             {/* User Info - NOW AT TOP */}
-            <div style={{ padding: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="sidebar-user" style={{ padding: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <div style={{
                         width: '36px', height: '36px', borderRadius: '50%',
@@ -78,11 +78,12 @@ const Sidebar = () => {
             </div>
 
             {/* Menu */}
-            <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+            <nav className="sidebar-nav" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                 {menuItems.map((item, index) => (
                     <NavLink
                         key={index}
                         to={item.path}
+                        className="sidebar-link"
                         style={({ isActive }) => ({
                             display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '12px',
                             color: isActive ? 'var(--color-accent)' : '#8b949e',
@@ -100,7 +101,7 @@ const Sidebar = () => {
             </nav>
 
             {/* Footer Logout */}
-            <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="sidebar-footer" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                 <button
                     onClick={handleSignOut}
                     style={{
