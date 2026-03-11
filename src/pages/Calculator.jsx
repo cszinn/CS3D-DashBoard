@@ -641,15 +641,15 @@ export default function Calculator() {
     ].sort((a, b) => b.value - a.value);
 
     return (
-        <div style={{ color: 'white', width: '100%', margin: '0', padding: '1rem 2rem 4rem' }}>
+        <div style={{ color: 'white', width: '100%', margin: '0', paddingBottom: '4rem' }}>
 
-            <header style={{ marginBottom: '3rem', textAlign: 'center' }}>
+            <header style={{ marginBottom: '2rem', textAlign: 'center' }}>
                 <h1 style={{ fontSize: '2.5rem', fontWeight: '900', marginBottom: '8px', color: 'white' }}>Calculadora de Preços</h1>
-                <p style={{ color: '#8b949e', fontSize: '1.1rem' }}>Calcule o custo total de impressão dos seus modelos STL</p>
+                <p style={{ color: '#8b949e', fontSize: '1rem' }}>Calcule o custo total de impressão dos seus modelos STL</p>
 
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '2rem' }}>
-                    <TabButton id="cliente" label="Calculadora de Orçamentos" icon={CalculatorIcon} />
-                    <TabButton id="producao" label="Projetos Recentes" icon={History} />
+                <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', marginTop: '1.5rem', width: '100%' }}>
+                    <TabButton id="cliente" label="Orçamento" icon={CalculatorIcon} />
+                    <TabButton id="producao" label="Projetos Salvos" icon={History} />
                 </div>
             </header>
 
