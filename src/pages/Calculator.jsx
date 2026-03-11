@@ -356,11 +356,9 @@ export default function Calculator() {
                 lucro_liquido: resultados.lucroLiquido,
                 detalhes_custos: {
                     ...resultados,
-                    markup,
-                    imposto,
-                    cores: cores,
-                    detalhesProjeto: detalhesProjeto,
-                    custoKg: custoKg
+                    cores, detalhesProjeto, custoKg, impressoraSelected, consumoW, custoKwh,
+                    margemFalhas, depImpHoraria, depMaqHoraria, desBicoHoraria, freteEmbalagem,
+                    acessorios, markup, imposto, taxaMaquininha, incluirTaxas
                 }
             });
             if (error) throw error;
@@ -410,10 +408,28 @@ export default function Calculator() {
         setPeso(proj.peso_gramas?.toString() || '');
 
         if (proj.detalhes_custos) {
-            setCustoKg(proj.detalhes_custos.custoKg || 100);
-            setMarkup(proj.detalhes_custos.markup || 100);
-            setCores(proj.detalhes_custos.cores || '');
-            setDetalhesProjeto(proj.detalhes_custos.detalhesProjeto || '');
+            const dc = proj.detalhes_custos;
+            setCustoKg(dc.custoKg ?? 100);
+            setImpressoraSelected(dc.impressoraSelected || 'custom');
+            
+            // Usamos setTimeout para garantir que o consumoW sobrescreva um possível trigger do useEffect(impressoraSelected) caso o React tente recomeçar pelo preset.
+            setTimeout(() => {
+                if(dc.consumoW !== undefined) setConsumoW(dc.consumoW);
+            }, 50);
+
+            setCustoKwh(dc.custoKwh ?? 0.85);
+            setMargemFalhas(dc.margemFalhas ?? 5);
+            setDepImpHoraria(dc.depImpHoraria ?? 0.3);
+            setDepMaqHoraria(dc.depMaqHoraria ?? 0.2);
+            setDesBicoHoraria(dc.desBicoHoraria ?? 0.1);
+            setFreteEmbalagem(dc.freteEmbalagem ?? 0);
+            setCores(dc.cores || '');
+            setDetalhesProjeto(dc.detalhesProjeto || '');
+            setAcessorios(dc.acessorios || []);
+            setMarkup(dc.markup ?? 100);
+            setImposto(dc.imposto ?? 0);
+            setTaxaMaquininha(dc.taxaMaquininha ?? 0);
+            setIncluirTaxas(dc.incluirTaxas ?? false);
         }
         setActiveTab('cliente');
         setMsg({ type: 'success', text: `Projeto "${proj.nome_projeto || 'Carregado'}" carregado!` });
