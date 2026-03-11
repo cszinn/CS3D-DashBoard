@@ -886,14 +886,14 @@ export default function Calculator() {
                         {/* GRÁFICO DE DISTRIBUIÇÃO */}
                         <div className="rounded-xl border border-border bg-card text-card-foreground shadow-lg shadow-black/20 glow-border p-6 space-y-6">
                             <SectionHeader icon={ChartPie} title="Distribuição de Custos" />
-                            <div className="flex justify-start items-center w-full px-4 md:px-8" style={{ position: 'relative', minHeight: '220px' }}>
+                            <div className="flex justify-start items-center w-full px-4 md:px-8 chart-layout" style={{ position: 'relative', minHeight: '220px' }}>
                                 {/* GRÁFICO (Menor e alinhado mais à esquerda) */}
-                                <div className="w-32 h-32 md:w-40 md:h-40" style={{ marginLeft: '5%' }}>
+                                <div className="w-32 h-32 md:w-40 md:h-40 chart-donut" style={{ marginLeft: '5%' }}>
                                     <DonutChart data={costDistributionData} />
                                 </div>
 
                                 {/* LEGENDA (Maior e centralizada na direita) */}
-                                <div className="recharts-legend-wrapper" style={{ position: 'absolute', width: 'auto', height: 'auto', right: '10%', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', paddingLeft: '10px' }}>
+                                <div className="recharts-legend-wrapper chart-legend" style={{ position: 'absolute', width: 'auto', height: 'auto', right: '10%', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', paddingLeft: '10px' }}>
                                     <ul className="recharts-default-legend" style={{ padding: '0px', margin: '0px', textAlign: 'left', listStyle: 'none' }}>
                                         {costDistributionData.map((item, index) => (
                                             <RechartsLegendItem
