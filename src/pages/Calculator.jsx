@@ -769,12 +769,12 @@ export default function Calculator() {
                                     <InputGroup label="Tempo de Impressão">
                                         <div className="flex gap-2">
                                             <div className="flex-1 relative">
-                                                <input style={inputStyle} type="number" value={horas} onChange={e => setHoras(e.target.value)} placeholder="H" />
-                                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '10px', color: '#8b949e', fontWeight: 'bold' }}>H</span>
+                                                <input style={{...inputStyle, paddingRight: '1.75rem', width: '100%'}} type="number" value={horas} onChange={e => setHoras(e.target.value)} placeholder="0" />
+                                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '10px', color: '#8b949e', fontWeight: 'bold', pointerEvents: 'none' }}>H</span>
                                             </div>
                                             <div className="flex-1 relative">
-                                                <input style={inputStyle} type="number" value={minutos} onChange={e => setMinutos(e.target.value)} placeholder="M" />
-                                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '10px', color: '#8b949e', fontWeight: 'bold' }}>M</span>
+                                                <input style={{...inputStyle, paddingRight: '1.75rem', width: '100%'}} type="number" value={minutos} onChange={e => setMinutos(e.target.value)} placeholder="0" />
+                                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '10px', color: '#8b949e', fontWeight: 'bold', pointerEvents: 'none' }}>M</span>
                                             </div>
                                         </div>
                                     </InputGroup>
