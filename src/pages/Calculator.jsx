@@ -359,7 +359,8 @@ export default function Calculator() {
                     markup,
                     imposto,
                     cores: cores,
-                    detalhesProjeto: detalhesProjeto
+                    detalhesProjeto: detalhesProjeto,
+                    custoKg: custoKg
                 }
             });
             if (error) throw error;
@@ -409,7 +410,7 @@ export default function Calculator() {
         setPeso(proj.peso_gramas?.toString() || '');
 
         if (proj.detalhes_custos) {
-            setCustoKg(proj.detalhes_custos.custoFilamento || 100);
+            setCustoKg(proj.detalhes_custos.custoKg || 100);
             setMarkup(proj.detalhes_custos.markup || 100);
             setCores(proj.detalhes_custos.cores || '');
             setDetalhesProjeto(proj.detalhes_custos.detalhesProjeto || '');
