@@ -473,15 +473,7 @@ export default function Calculator() {
         );
     };
 
-    const RechartsLegendItem = ({ index, colorHex, colorRgb, label }) => (
-        <li className={`recharts-legend-item legend-item-${index}`} style={{ display: 'block', marginRight: '10px', marginBottom: '4px' }}>
-            <svg className="recharts-surface" width="8" height="8" viewBox="0 0 32 32" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }}>
-                <title></title><desc></desc>
-                <path fill={colorHex} cx="16" cy="16" className="recharts-symbols" transform="translate(16, 16)" d="M16,0A16,16,0,1,1,-16,0A16,16,0,1,1,16,0"></path>
-            </svg>
-            <span className="recharts-legend-item-text" style={{ color: colorRgb }}>{label}</span>
-        </li>
-    );
+
 
     const TabButton = ({ id, label, icon: Icon }) => (
         <button
@@ -498,7 +490,7 @@ export default function Calculator() {
         </button>
     );
 
-    const DonutChart = ({ data }) => {
+    const CostDistributionGroup = ({ data }) => {
         const [hoveredSlice, setHoveredSlice] = useState(null);
         const [activeTooltip, setActiveTooltip] = useState({ slice: null, left: '50%', top: '50%', opacity: 0 });
 
@@ -547,11 +539,11 @@ export default function Calculator() {
         };
 
         return (
-            <div
-                className="relative w-full h-full aspect-square max-w-[280px] mx-auto"
-                onMouseLeave={handleMouseLeave}
-            >
-                <svg viewBox="-1.2 -1.2 2.4 2.4" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%', overflow: 'visible' }}>
+            <div className="flex justify-start items-center w-full px-4 md:px-8 chart-layout" style={{ position: 'relative', minHeight: '220px' }}>
+                {/* GRÁFICO (Menor e alinhado mais à esquerda) */}
+                <div className="w-32 h-32 md:w-40 md:h-40 chart-donut" style={{ marginLeft: '5%' }}>
+                    <div className="relative w-full h-full aspect-square max-w-[280px] mx-auto" onMouseLeave={handleMouseLeave}>
+                        <svg viewBox="-1.2 -1.2 2.4 2.4" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%', overflow: 'visible' }}>
                     {data.map((slice, i) => {
                         if (slice.value === 0) return null;
 
@@ -625,6 +617,38 @@ export default function Calculator() {
                             </p>
                         </>
                     )}
+                </div>
+                        </div>
+                    </div>
+
+                {/* LEGENDA (Maior e centralizada na direita) */}
+                <div className="recharts-legend-wrapper chart-legend" style={{ position: 'absolute', width: 'auto', height: 'auto', right: '10%', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', paddingLeft: '10px' }}>
+                    <ul className="recharts-default-legend" style={{ padding: '0px', margin: '0px', textAlign: 'left', listStyle: 'none' }}>
+                        {data.map((item, index) => {
+                            const isHovered = hoveredSlice === index;
+                            return (
+                                <li
+                                    key={item.name}
+                                    className={`recharts-legend-item legend-item-${index}`}
+                                    style={{
+                                        display: 'block', marginRight: '10px', marginBottom: '4px',
+                                        cursor: 'pointer',
+                                        fontWeight: isHovered ? 'bold' : 'normal',
+                                        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+                                        transition: 'all 0.2s ease'
+                                    }}
+                                    onMouseEnter={() => handleMouseEnter(index)}
+                                    onMouseLeave={handleMouseLeave}
+                                >
+                                    <svg className="recharts-surface" width="8" height="8" viewBox="0 0 32 32" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }}>
+                                        <title></title><desc></desc>
+                                        <path fill={item.color} cx="16" cy="16" className="recharts-symbols" transform="translate(16, 16)" d="M16,0A16,16,0,1,1,-16,0A16,16,0,1,1,16,0"></path>
+                                    </svg>
+                                    <span className="recharts-legend-item-text" style={{ color: isHovered ? '#ffffff' : item.color, transition: 'color 0.2s' }}>{item.name}</span>
+                                </li>
+                            );
+                        })}
+                    </ul>
                 </div>
             </div>
         );
@@ -886,27 +910,7 @@ export default function Calculator() {
                         {/* GRÁFICO DE DISTRIBUIÇÃO */}
                         <div className="rounded-xl border border-border bg-card text-card-foreground shadow-lg shadow-black/20 glow-border p-6 space-y-6">
                             <SectionHeader icon={ChartPie} title="Distribuição de Custos" />
-                            <div className="flex justify-start items-center w-full px-4 md:px-8 chart-layout" style={{ position: 'relative', minHeight: '220px' }}>
-                                {/* GRÁFICO (Menor e alinhado mais à esquerda) */}
-                                <div className="w-32 h-32 md:w-40 md:h-40 chart-donut" style={{ marginLeft: '5%' }}>
-                                    <DonutChart data={costDistributionData} />
-                                </div>
-
-                                {/* LEGENDA (Maior e centralizada na direita) */}
-                                <div className="recharts-legend-wrapper chart-legend" style={{ position: 'absolute', width: 'auto', height: 'auto', right: '10%', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', paddingLeft: '10px' }}>
-                                    <ul className="recharts-default-legend" style={{ padding: '0px', margin: '0px', textAlign: 'left', listStyle: 'none' }}>
-                                        {costDistributionData.map((item, index) => (
-                                            <RechartsLegendItem
-                                                key={item.name}
-                                                index={index}
-                                                colorHex={item.color}
-                                                colorRgb={item.color}
-                                                label={item.name}
-                                            />
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
+                            <CostDistributionGroup data={costDistributionData} />
                         </div>
 
                         {/* ANÁLISE DETALHADA */}
