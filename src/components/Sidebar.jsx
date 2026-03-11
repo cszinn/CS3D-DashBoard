@@ -95,7 +95,7 @@ const Sidebar = () => {
                         })}
                     >
                         <item.icon size={20} strokeWidth={index === 0 ? 2.5 : 2} />
-                        {item.name}
+                        <span>{item.name}</span>
                     </NavLink>
                 ))}
             </nav>
