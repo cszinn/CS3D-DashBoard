@@ -411,10 +411,10 @@ export default function Calculator() {
             const dc = proj.detalhes_custos;
             setCustoKg(dc.custoKg ?? 100);
             setImpressoraSelected(dc.impressoraSelected || 'custom');
-            
+
             // Usamos setTimeout para garantir que o consumoW sobrescreva um possível trigger do useEffect(impressoraSelected) caso o React tente recomeçar pelo preset.
             setTimeout(() => {
-                if(dc.consumoW !== undefined) setConsumoW(dc.consumoW);
+                if (dc.consumoW !== undefined) setConsumoW(dc.consumoW);
             }, 50);
 
             setCustoKwh(dc.custoKwh ?? 0.85);
@@ -561,82 +561,82 @@ export default function Calculator() {
                 <div className="w-32 h-32 md:w-40 md:h-40 chart-donut" style={{ marginLeft: '5%' }}>
                     <div className="relative w-full h-full aspect-square max-w-[280px] mx-auto" onMouseLeave={handleMouseLeave}>
                         <svg viewBox="-1.2 -1.2 2.4 2.4" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%', overflow: 'visible' }}>
-                    {data.map((slice, i) => {
-                        if (slice.value === 0) return null;
+                            {data.map((slice, i) => {
+                                if (slice.value === 0) return null;
 
-                        const startPercent = cumulativePercent;
-                        const endPercent = cumulativePercent + (slice.value / total);
-                        cumulativePercent = endPercent;
+                                const startPercent = cumulativePercent;
+                                const endPercent = cumulativePercent + (slice.value / total);
+                                cumulativePercent = endPercent;
 
-                        const isFullCircle = (slice.value / total) > 0.999;
-                        const safeEndPercent = isFullCircle ? endPercent - 0.0001 : endPercent;
+                                const isFullCircle = (slice.value / total) > 0.999;
+                                const safeEndPercent = isFullCircle ? endPercent - 0.0001 : endPercent;
 
-                        const [startX_out, startY_out] = getCoordinatesForPercent(startPercent, 1);
-                        const [endX_out, endY_out] = getCoordinatesForPercent(safeEndPercent, 1);
-                        const [startX_in, startY_in] = getCoordinatesForPercent(startPercent, 0.65);
-                        const [endX_in, endY_in] = getCoordinatesForPercent(safeEndPercent, 0.65);
+                                const [startX_out, startY_out] = getCoordinatesForPercent(startPercent, 1);
+                                const [endX_out, endY_out] = getCoordinatesForPercent(safeEndPercent, 1);
+                                const [startX_in, startY_in] = getCoordinatesForPercent(startPercent, 0.65);
+                                const [endX_in, endY_in] = getCoordinatesForPercent(safeEndPercent, 0.65);
 
-                        const largeArcFlag = (slice.value / total) > 0.5 ? 1 : 0;
+                                const largeArcFlag = (slice.value / total) > 0.5 ? 1 : 0;
 
-                        const pathData = [
-                            `M ${startX_out} ${startY_out}`,
-                            `A 1 1 0 ${largeArcFlag} 1 ${endX_out} ${endY_out}`,
-                            `L ${endX_in} ${endY_in}`,
-                            `A 0.65 0.65 0 ${largeArcFlag} 0 ${startX_in} ${startY_in}`,
-                            `Z`
-                        ].join(' ');
+                                const pathData = [
+                                    `M ${startX_out} ${startY_out}`,
+                                    `A 1 1 0 ${largeArcFlag} 1 ${endX_out} ${endY_out}`,
+                                    `L ${endX_in} ${endY_in}`,
+                                    `A 0.65 0.65 0 ${largeArcFlag} 0 ${startX_in} ${startY_in}`,
+                                    `Z`
+                                ].join(' ');
 
-                        const isHovered = hoveredSlice === i;
+                                const isHovered = hoveredSlice === i;
 
-                        return (
-                            <path
-                                key={i}
-                                d={pathData}
-                                fill={slice.color}
-                                stroke={isHovered ? '#ffffff' : 'var(--color-bg-card)'}
-                                strokeWidth={isHovered ? '0.025' : '0.015'}
-                                strokeLinejoin="round"
-                                style={{
-                                    transition: 'all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-                                    transform: isHovered ? 'scale(1.06)' : 'scale(1)',
-                                    transformOrigin: '0 0',
-                                    cursor: 'pointer',
-                                }}
-                                onMouseEnter={() => handleMouseEnter(i)}
-                            />
-                        );
-                    })}
-                </svg>
+                                return (
+                                    <path
+                                        key={i}
+                                        d={pathData}
+                                        fill={slice.color}
+                                        stroke={isHovered ? '#ffffff' : 'var(--color-bg-card)'}
+                                        strokeWidth={isHovered ? '0.025' : '0.015'}
+                                        strokeLinejoin="round"
+                                        style={{
+                                            transition: 'all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                                            transform: isHovered ? 'scale(1.06)' : 'scale(1)',
+                                            transformOrigin: '0 0',
+                                            cursor: 'pointer',
+                                        }}
+                                        onMouseEnter={() => handleMouseEnter(i)}
+                                    />
+                                );
+                            })}
+                        </svg>
 
-                <div style={{
-                    position: 'absolute',
-                    top: activeTooltip.top,
-                    left: activeTooltip.left,
-                    transform: activeTooltip.transform || 'translate(-50%, -50%)',
-                    pointerEvents: 'none',
-                    backgroundColor: '#161b22',
-                    padding: '10px 14px',
-                    borderRadius: '6px',
-                    border: '1px solid #30363d',
-                    boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
-                    zIndex: 50,
-                    whiteSpace: 'nowrap',
-                    opacity: activeTooltip.opacity,
-                    transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease',
-                }}>
-                    {activeTooltip.slice !== null && (
-                        <>
-                            <p style={{ fontSize: '13px', fontWeight: '600', color: 'white', margin: 0, marginBottom: '4px' }}>
-                                {data[activeTooltip.slice].name}
-                            </p>
-                            <p style={{ fontSize: '13px', color: '#8b949e', margin: 0 }}>
-                                R$ {data[activeTooltip.slice].value.toFixed(2)} ({((data[activeTooltip.slice].value / total) * 100).toFixed(1)}%)
-                            </p>
-                        </>
-                    )}
-                </div>
+                        <div style={{
+                            position: 'absolute',
+                            top: activeTooltip.top,
+                            left: activeTooltip.left,
+                            transform: activeTooltip.transform || 'translate(-50%, -50%)',
+                            pointerEvents: 'none',
+                            backgroundColor: '#161b22',
+                            padding: '10px 14px',
+                            borderRadius: '6px',
+                            border: '1px solid #30363d',
+                            boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                            zIndex: 50,
+                            whiteSpace: 'nowrap',
+                            opacity: activeTooltip.opacity,
+                            transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease',
+                        }}>
+                            {activeTooltip.slice !== null && (
+                                <>
+                                    <p style={{ fontSize: '13px', fontWeight: '600', color: 'white', margin: 0, marginBottom: '4px' }}>
+                                        {data[activeTooltip.slice].name}
+                                    </p>
+                                    <p style={{ fontSize: '13px', color: '#8b949e', margin: 0 }}>
+                                        R$ {data[activeTooltip.slice].value.toFixed(2)} ({((data[activeTooltip.slice].value / total) * 100).toFixed(1)}%)
+                                    </p>
+                                </>
+                            )}
                         </div>
                     </div>
+                </div>
 
                 {/* LEGENDA (Maior e centralizada na direita) */}
                 <div className="recharts-legend-wrapper chart-legend" style={{ position: 'absolute', width: 'auto', height: 'auto', right: '10%', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', paddingLeft: '10px' }}>
@@ -769,12 +769,12 @@ export default function Calculator() {
                                     <InputGroup label="Tempo de Impressão">
                                         <div className="flex gap-2">
                                             <div className="flex-1 relative">
-                                                <input style={{...inputStyle, paddingRight: '1.75rem', width: '100%'}} type="number" value={horas} onChange={e => setHoras(e.target.value)} placeholder="0" />
-                                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '10px', color: '#8b949e', fontWeight: 'bold', pointerEvents: 'none' }}>H</span>
+                                                <input style={{ ...inputStyle, paddingRight: '1.75rem', width: '100%' }} type="number" value={horas} onChange={e => setHoras(e.target.value)} placeholder="0" />
+                                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '10px', color: '#8b949e', fontWeight: 'bold', pointerEvents: 'none' }}></span>
                                             </div>
                                             <div className="flex-1 relative">
-                                                <input style={{...inputStyle, paddingRight: '1.75rem', width: '100%'}} type="number" value={minutos} onChange={e => setMinutos(e.target.value)} placeholder="0" />
-                                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '10px', color: '#8b949e', fontWeight: 'bold', pointerEvents: 'none' }}>M</span>
+                                                <input style={{ ...inputStyle, paddingRight: '1.75rem', width: '100%' }} type="number" value={minutos} onChange={e => setMinutos(e.target.value)} placeholder="0" />
+                                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '10px', color: '#8b949e', fontWeight: 'bold', pointerEvents: 'none' }}></span>
                                             </div>
                                         </div>
                                     </InputGroup>
