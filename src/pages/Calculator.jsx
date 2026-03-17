@@ -74,7 +74,7 @@ const fmt = (val) => (parseFloat(val) || 0).toLocaleString('pt-BR', { style: 'cu
 
 export default function Calculator() {
     const { user } = useAuth();
-    const [activeTab, setActiveTab] = useState('cliente'); // 'cliente' ou 'producao'
+    const [activeTab, setActiveTab] = useState('cliente'); // 'cliente', 'producao' ou 'historico'
 
     // --- LER RASCUNHO SALVO ---
     const [initialDraft] = useState(() => {
@@ -140,9 +140,15 @@ export default function Calculator() {
         lucroLiquido: 0
     });
 
+    const [filamentos, setFilamentos] = useState([]);
+    const [selectedFilamentoId, setSelectedFilamentoId] = useState('');
     const [loading, setLoading] = useState(false);
     const [msg, setMsg] = useState({ type: '', text: '' });
     const fileInputRef = useRef(null);
+
+    // States para Histórico de Impressões
+    const [impressoes, setImpressoes] = useState([]);
+    const [loadingHistory, setLoadingHistory] = useState(false);
 
     // States para Projetos Salvos (Tab: Projetos Recentes)
     const [savedProjects, setSavedProjects] = useState([]);
@@ -169,6 +175,37 @@ export default function Calculator() {
             setVidaUtil(p.life);
         }
     }, [impressoraSelected]);
+
+    // --- BUSCAR FILAMENTOS DO CATÁLOGO ---
+    const fetchFilamentos = async () => {
+        if (!user) return;
+        try {
+            const { data, error } = await supabase
+                .from('filamentos')
+                .select('*')
+                .order('marca', { ascending: true });
+            if (error) throw error;
+            setFilamentos(data || []);
+        } catch (err) {
+            console.error('Erro ao buscar filamentos:', err);
+        }
+    };
+
+    useEffect(() => {
+        fetchFilamentos();
+    }, [user]);
+
+    // Atualiza custo quando filamento é selecionado
+    useEffect(() => {
+        if (selectedFilamentoId) {
+            const f = filamentos.find(item => item.id === selectedFilamentoId);
+            if (f) {
+                setCustoKg(f.preco_kg);
+                setCores(f.cor);
+                // Opcionalmente definir o material se o select for atualizado
+            }
+        }
+    }, [selectedFilamentoId, filamentos]);
 
     // Efeito para Cálculo Real-time (Sincronizado e Expandido)
     useEffect(() => {
@@ -436,6 +473,86 @@ export default function Calculator() {
         setTimeout(() => setMsg({ type: '', text: '' }), 3000);
     };
 
+    // --- BUSCAR HISTÓRICO DE IMPRESSÕES ---
+    const fetchHistory = async () => {
+        if (!user) return;
+        setLoadingHistory(true);
+        try {
+            const { data, error } = await supabase
+                .from('impressoes')
+                .select('*, filamentos(marca, cor, material)')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            setImpressoes(data || []);
+        } catch (err) {
+            console.error('Erro ao carregar histórico:', err);
+        } finally {
+            setLoadingHistory(false);
+        }
+    };
+
+    useEffect(() => {
+        if (activeTab === 'historico') {
+            fetchHistory();
+        }
+    }, [activeTab]);
+
+    // --- FUNÇÃO IMPRIMIR (DEDUZIR ESTOQUE) ---
+    const handleImprimir = async () => {
+        if (!selectedFilamentoId || !peso || parseFloat(peso) <= 0) {
+            setMsg({ type: 'error', text: 'Selecione um filamento e defina o peso!' });
+            return;
+        }
+
+        const pesoG = parseFloat(peso);
+        const f = filamentos.find(item => item.id === selectedFilamentoId);
+        if (!f) return;
+
+        if (f.peso_atual < pesoG) {
+            if (!window.confirm(`Estoque insuficiente (${f.peso_atual}g). Deseja continuar mesmo assim?`)) return;
+        }
+
+        setLoading(true);
+        try {
+            // 1. Deduzir do estoque
+            const novoPeso = Math.max(0, f.peso_atual - pesoG);
+            const { error: updError } = await supabase
+                .from('filamentos')
+                .update({ peso_atual: novoPeso })
+                .eq('id', selectedFilamentoId);
+
+            if (updError) throw updError;
+
+            // 2. Salvar log de impressão
+            const tempoStr = `${horas}h ${minutos}m`;
+            const { error: insError } = await supabase
+                .from('impressoes')
+                .insert({
+                    user_id: user.id,
+                    projeto: nomeProjeto || 'Projeto Sem Nome',
+                    filamento_id: selectedFilamentoId,
+                    peso_g: pesoG,
+                    custo_total: resultados.custoTotalLote,
+                    tempo_total: tempoStr,
+                    preco_venda: resultados.precoTotalLote,
+                    lucro_liquido: resultados.lucroLiquido,
+                    status: 'Concluído'
+                });
+
+            if (insError) throw insError;
+
+            setMsg({ type: 'success', text: 'Impressão registrada e estoque atualizado!' });
+            fetchFilamentos(); // Recarregar estoque local
+        } catch (err) {
+            setMsg({ type: 'error', text: 'Erro ao imprimir: ' + err.message });
+        } finally {
+            setLoading(false);
+            setTimeout(() => setMsg({ type: '', text: '' }), 4000);
+        }
+    };
+
     // --- DELETAR PROJETO ---
     const deleteProject = async (id, e) => {
         e.stopPropagation(); // Evita que o click do card dispare o Load
@@ -691,6 +808,7 @@ export default function Calculator() {
                 <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: '8px', marginTop: '1.5rem', width: '100%' }}>
                     <TabButton id="cliente" label="Orçamento" icon={CalculatorIcon} />
                     <TabButton id="producao" label="Projetos Salvos" icon={History} />
+                    <TabButton id="historico" label="Últimas Impressões" icon={History} />
                 </div>
             </header>
 
@@ -706,8 +824,8 @@ export default function Calculator() {
                 </div>
             )}
 
-            {activeTab === 'cliente' ? (
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+            {activeTab === 'cliente' && (
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start animate-fadeIn">
 
                     {/* COLUNA ESQUERDA - INPUTS CATEGORIZADOS */}
                     <div className="space-y-6">
@@ -738,23 +856,28 @@ export default function Calculator() {
                             <div className="space-y-3 pt-4 border-t border-border/50">
                                 <SubHeader icon={Package} title="Material" />
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                    <InputGroup label="Tipo de Filamento">
-                                        <select style={inputStyle} defaultValue="PLA">
-                                            <option value="PLA" style={{ backgroundColor: '#1e293b', color: 'white' }}>PLA</option>
-                                            <option value="ABS" style={{ backgroundColor: '#1e293b', color: 'white' }}>ABS</option>
-                                            <option value="PETG" style={{ backgroundColor: '#1e293b', color: 'white' }}>PETG</option>
-                                            <option value="TPU" style={{ backgroundColor: '#1e293b', color: 'white' }}>TPU</option>
-                                            <option value="Outros" style={{ backgroundColor: '#1e293b', color: 'white' }}>Outros</option>
+                                    <InputGroup label="Selecionar Estoque (Catálogo)">
+                                        <select
+                                            style={inputStyle}
+                                            value={selectedFilamentoId}
+                                            onChange={e => setSelectedFilamentoId(e.target.value)}
+                                        >
+                                            <option value="" style={{ backgroundColor: '#1e293b' }}>-- Manual / Personalizado --</option>
+                                            {filamentos.map(f => (
+                                                <option key={f.id} value={f.id} style={{ backgroundColor: '#1e293b' }}>
+                                                    {f.marca} - {f.cor} ({f.material}) - {f.peso_atual}g
+                                                </option>
+                                            ))}
                                         </select>
                                     </InputGroup>
-                                    <InputGroup label="Cor">
+                                    <InputGroup label="Fixo (Cores)">
                                         <div style={{ position: 'relative' }}>
-                                            <input style={inputStyle} placeholder="Ex: Preto" value={cores} onChange={e => setCores(e.target.value)} />
+                                            <input style={inputStyle} placeholder="Ex: Preto" value={cores} onChange={e => setCores(e.target.value)} readOnly={!!selectedFilamentoId} />
                                             <Palette size={14} style={{ position: 'absolute', right: '12px', top: '13px', color: '#8b949e' }} />
                                         </div>
                                     </InputGroup>
                                     <InputGroup label="Custo (R$/kg)">
-                                        <input style={inputStyle} type="number" value={custoKg} onChange={e => setCustoKg(e.target.value)} />
+                                        <input style={inputStyle} type="number" value={custoKg} onChange={e => setCustoKg(e.target.value)} readOnly={!!selectedFilamentoId} />
                                     </InputGroup>
                                     <InputGroup label="Peso da Peça (g)">
                                         <input style={inputStyle} type="number" value={peso} onChange={e => setPeso(e.target.value)} />
@@ -963,7 +1086,15 @@ export default function Calculator() {
                         </div>
 
                         {/* AÇÕES (EXPORTAÇÃO) */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
+                            <button
+                                onClick={handleImprimir}
+                                disabled={loading}
+                                className="h-12 rounded-xl text-white font-bold transition-all shadow-lg flex items-center justify-center gap-2 hover:opacity-90"
+                                style={{ backgroundColor: 'rgba(239, 68, 68, 0.8)', border: '1px solid #ef4444' }}
+                            >
+                                <Zap size={18} /> Imprimir (Baixar Estoque)
+                            </button>
                             <button onClick={saveOrcamento} className="h-12 rounded-xl text-white font-bold transition-all shadow-lg flex items-center justify-center gap-2" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
                                 <Save size={18} /> Salvar Projeto (BD)
                             </button>
@@ -977,11 +1108,11 @@ export default function Calculator() {
                                 <FileText size={18} /> Orçamento Cliente (PDF)
                             </button>
                         </div>
-
                     </div>
-
                 </div>
-            ) : (
+            )}
+
+            {activeTab === 'producao' && (
                 /* --- ABA: PROJETOS RECENTES --- */
                 <div className="w-full space-y-6">
                     <div className="flex justify-between items-center mb-6">
@@ -1054,6 +1185,76 @@ export default function Calculator() {
                                             >
                                                 <Trash2 size={18} />
                                             </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {activeTab === 'historico' && (
+                <div className="w-full space-y-6 animate-fadeIn">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-2xl font-bold flex items-center gap-2 text-white">
+                            <Zap size={24} className="text-primary" /> Log de Impressões Recentes
+                        </h2>
+                    </div>
+
+                    {loadingHistory ? (
+                        <div className="text-center py-20">
+                            <Zap size={40} className="mx-auto text-primary animate-pulse mb-4" />
+                            <p className="text-muted-foreground font-medium">Buscando histórico no banco de dados...</p>
+                        </div>
+                    ) : impressoes.length === 0 ? (
+                        <div className="text-center py-20 rounded-xl border border-border/50 bg-card/30">
+                            <Clock size={40} className="mx-auto text-muted-foreground mb-4 opacity-50" />
+                            <p className="text-muted-foreground font-medium">Nenhuma impressão registrada ainda.</p>
+                            <p className="text-sm text-muted-foreground/70 mt-2">Clique em "Imprimir" na calculadora para baixar o estoque e salvar aqui.</p>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-3">
+                            {impressoes.map(imp => (
+                                <div key={imp.id} style={{
+                                    backgroundColor: 'var(--color-bg-card)',
+                                    border: '1px solid var(--color-border)',
+                                    borderRadius: '16px', padding: '20px',
+                                    display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '16px',
+                                    transition: 'all 0.3s ease'
+                                }} className="hover:border-primary/30 shadow-md">
+                                    <div className="flex items-center gap-5 min-w-[250px]">
+                                        <div className="p-3.5 bg-secondary/40 rounded-2xl text-primary" style={{ flexShrink: 0 }}>
+                                            <Printer size={24} />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-bold text-white mb-1.5" style={{ fontSize: '17px' }}>{imp.projeto}</h4>
+                                            <div className="flex flex-col gap-1">
+                                                <p className="text-xs text-muted-foreground flex items-center gap-2">
+                                                    <Circle size={8} fill={imp.filamentos?.cor_hex || "#10b981"} />
+                                                    {imp.filamentos?.marca} - {imp.filamentos?.cor} ({imp.filamentos?.material})
+                                                </p>
+                                                <p className="text-[11px] text-muted-foreground flex items-center gap-1.5 opacity-80">
+                                                    <Clock size={11} /> {imp.tempo_total || '0h 0m'} 
+                                                    <span className="mx-1">•</span> 
+                                                    {new Date(imp.created_at).toLocaleDateString('pt-BR')} {new Date(imp.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-8 ml-auto">
+                                        <div className="text-right">
+                                            <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1 opacity-70">Peso</p>
+                                            <p className="font-mono text-xl font-bold text-red-400">-{imp.peso_g}g</p>
+                                        </div>
+                                        <div className="text-right hidden sm:block">
+                                            <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1 opacity-70">Venda</p>
+                                            <p className="font-mono text-base font-bold text-sky-400">{fmt(imp.preco_venda || 0)}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1 opacity-70">Lucro</p>
+                                            <p className="font-mono text-base font-bold text-emerald-400">{fmt(imp.lucro_liquido || 0)}</p>
                                         </div>
                                     </div>
                                 </div>
