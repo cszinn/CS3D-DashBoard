@@ -11,6 +11,7 @@ import {
     LogOut
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/CS3D.svg';
 
 const Sidebar = () => {
     const { user, signOut } = useAuth();
@@ -45,16 +46,17 @@ const Sidebar = () => {
             top: 0
         }}>
             {/* Logo */}
-            <div className="sidebar-header" style={{ padding: '0 1rem 1rem 1rem', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{
-                    width: '32px', height: '32px', borderRadius: '8px',
-                    background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 4px 12px rgba(234, 88, 12, 0.25)'
-                }}>
-                    <Zap size={18} color="white" strokeWidth={2.5} />
-                </div>
-                <h1 style={{ fontSize: '1.2rem', fontWeight: '800', color: 'white', letterSpacing: '-0.5px' }}>STL<span style={{ color: '#ea580c' }}>Hub</span></h1>
+            <div className="sidebar-header" style={{ padding: '0.5rem 0 1.5rem 0', display: 'flex', justifyContent: 'center' }}>
+                <img
+                    src={logo}
+                    alt="CS3D Logo"
+                    style={{
+                        width: '90px',
+                        height: 'auto',
+                        filter: 'invert(1) brightness(2)', // Faz o SVG preto ficar branco
+                        objectFit: 'contain'
+                    }}
+                />
             </div>
 
             {/* User Info - NOW AT TOP */}

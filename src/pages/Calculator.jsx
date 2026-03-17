@@ -473,15 +473,20 @@ export default function Calculator() {
         setTimeout(() => setMsg({ type: '', text: '' }), 3000);
     };
 
-    // --- BUSCAR HISTÓRICO DE IMPRESSÕES ---
+    // --- BUSCAR HISTÓRICO DE IMPRESSÕES (ÚLTIMOS 30 DIAS) ---
     const fetchHistory = async () => {
         if (!user) return;
         setLoadingHistory(true);
         try {
+            // Calcular data de 30 dias atrás
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
             const { data, error } = await supabase
                 .from('impressoes')
-                .select('*, filamentos(marca, cor, material)')
+                .select('*, filamentos(marca, cor, cor_hex, material)')
                 .eq('user_id', user.id)
+                .gte('created_at', thirtyDaysAgo.toISOString())
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -538,7 +543,7 @@ export default function Calculator() {
                     tempo_total: tempoStr,
                     preco_venda: resultados.precoTotalLote,
                     lucro_liquido: resultados.lucroLiquido,
-                    status: 'Concluído'
+                    status: 'Imprimindo'
                 });
 
             if (insError) throw insError;
@@ -550,6 +555,41 @@ export default function Calculator() {
         } finally {
             setLoading(false);
             setTimeout(() => setMsg({ type: '', text: '' }), 4000);
+        }
+    };
+
+    // --- DELETAR IMPRESSÃO DO HISTÓRICO ---
+    const deleteImpressao = async (id, e) => {
+        e.stopPropagation();
+        if (!window.confirm("Deseja realmente excluir este registro de impressão?")) return;
+
+        try {
+            const { error } = await supabase.from('impressoes').delete().eq('id', id);
+            if (error) throw error;
+            setImpressoes(impressoes.filter(imp => imp.id !== id));
+            setMsg({ type: 'success', text: 'Registro excluído do histórico!' });
+            setTimeout(() => setMsg({ type: '', text: '' }), 3000);
+        } catch (err) {
+            setMsg({ type: 'error', text: 'Erro ao excluir: ' + err.message });
+        }
+    };
+
+    // --- ATUALIZAR STATUS DA IMPRESSÃO ---
+    const updateImpressaoStatus = async (id, newStatus) => {
+        try {
+            const { error } = await supabase
+                .from('impressoes')
+                .update({ status: newStatus })
+                .eq('id', id);
+            
+            if (error) throw error;
+            
+            setImpressoes(impressoes.map(imp => 
+                imp.id === id ? { ...imp, status: newStatus } : imp
+            ));
+        } catch (err) {
+            setMsg({ type: 'error', text: 'Erro ao atualizar status: ' + err.message });
+            setTimeout(() => setMsg({ type: '', text: '' }), 3000);
         }
     };
 
@@ -1243,10 +1283,35 @@ export default function Calculator() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-8 ml-auto">
+                                    <div className="flex items-center gap-6 ml-auto">
+                                        <div className="flex flex-col items-end gap-2">
+                                            <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider opacity-70">Status</p>
+                                            <select
+                                                value={imp.status || 'Imprimindo'}
+                                                onChange={(e) => updateImpressaoStatus(imp.id, e.target.value)}
+                                                style={{
+                                                    backgroundColor: imp.status === 'Concluído' ? 'rgba(16, 185, 129, 0.1)' : 
+                                                                    imp.status === 'Falhou' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(59, 130, 246, 0.1)',
+                                                    color: imp.status === 'Concluído' ? '#10b981' : 
+                                                           imp.status === 'Falhou' ? '#ef4444' : '#3b82f6',
+                                                    border: '1px solid currentColor',
+                                                    borderRadius: '8px',
+                                                    padding: '4px 8px',
+                                                    fontSize: '12px',
+                                                    fontWeight: '600',
+                                                    cursor: 'pointer',
+                                                    outline: 'none'
+                                                }}
+                                            >
+                                                <option value="Imprimindo">Imprimindo</option>
+                                                <option value="Concluído">Concluído</option>
+                                                <option value="Falhou">Falhou</option>
+                                            </select>
+                                        </div>
+
                                         <div className="text-right">
                                             <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1 opacity-70">Peso</p>
-                                            <p className="font-mono text-xl font-bold text-red-400">-{imp.peso_g}g</p>
+                                            <p className="font-mono text-xl font-bold text-red-500">-{imp.peso_g}g</p>
                                         </div>
                                         <div className="text-right hidden sm:block">
                                             <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1 opacity-70">Venda</p>
@@ -1255,6 +1320,16 @@ export default function Calculator() {
                                         <div className="text-right">
                                             <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1 opacity-70">Lucro</p>
                                             <p className="font-mono text-base font-bold text-emerald-400">{fmt(imp.lucro_liquido || 0)}</p>
+                                        </div>
+
+                                        <div className="flex items-center gap-2" style={{ marginLeft: '8px', borderLeft: '1px solid rgba(255,255,255,0.05)', paddingLeft: '16px' }}>
+                                            <button
+                                                onClick={(e) => deleteImpressao(imp.id, e)}
+                                                className="text-muted-foreground hover:text-red-500 transition-colors p-2"
+                                                title="Excluir Registro"
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
                                         </div>
                                     </div>
                                 </div>

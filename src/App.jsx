@@ -8,6 +8,7 @@ import Calculator from './pages/Calculator'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Catalog from './pages/Catalog'
+import ConfirmEmail from './pages/ConfirmEmail'
 import './App.css'
 
 function DashboardLayout() {
@@ -34,6 +35,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/confirmacao-email" element={<ConfirmEmail />} />
           <Route
             path="/*"
             element={

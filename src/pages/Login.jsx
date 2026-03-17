@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Printer } from 'lucide-react';
+import logo from '../assets/CS3D.svg';
 import '../App.css';
 
 export default function Login() {
@@ -37,10 +38,20 @@ export default function Login() {
 
                 {/* Logo and Header */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '2rem' }}>
-                    <div style={{ backgroundColor: 'rgba(0, 224, 255, 0.1)', padding: '12px', borderRadius: '12px', marginBottom: '1rem', border: '1px solid rgba(0, 224, 255, 0.2)' }}>
-                        <Printer size={28} color="#00e0ff" />
+                    <div style={{ marginBottom: '1rem' }}>
+                        <img
+                            src={logo}
+                            alt="CS3D Logo"
+                            style={{
+                                width: '64px',
+                                height: '64px',
+                                borderRadius: '12px',
+                                filter: 'invert(1) brightness(2)',
+                                objectFit: 'contain'
+                            }}
+                        />
                     </div>
-                    <h2 style={{ fontSize: '1.4rem', fontWeight: '600', color: 'white', marginBottom: '0.25rem' }}>STLHub Manager</h2>
+                    <h2 style={{ fontSize: '1.6rem', fontWeight: '700', color: 'white', marginBottom: '0.25rem' }}>CS3D Manager</h2>
                     <p style={{ color: '#8b949e', fontSize: '0.9rem' }}>Acesse seu painel exclusivo</p>
                 </div>
 
