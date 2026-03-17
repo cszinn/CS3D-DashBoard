@@ -45,20 +45,23 @@ const inputStyle = {
 
 const StatCard = ({ icon: Icon, label, value, colorClass = "blue" }) => {
     const colors = {
-        blue: { bg: 'rgba(59, 130, 246, 0.1)', text: '#3b82f6' },
-        emerald: { bg: 'rgba(16, 185, 129, 0.1)', text: '#10b981' },
-        orange: { bg: 'rgba(245, 158, 11, 0.1)', text: '#f59e0b' }
+        blue: {},
+        emerald: {},
+        orange: {}
     };
     const theme = colors[colorClass] || colors.blue;
 
     return (
-        <div className="flex-1 min-w-[300px] bg-[#1e293b] rounded-2xl p-6 shadow-lg border border-white/10 flex items-center gap-5 transition-all hover:-translate-y-0.5 hover:shadow-2xl hover:border-white/20">
-            <div className="w-[56px] h-[56px] rounded-2xl flex items-center justify-center text-3xl shrink-0" style={{ backgroundColor: theme.bg, color: theme.text }}>
-                <Icon size={28} />
+        <div
+            className="flex-1 min-w-[300px] p-6 shadow-lg border border-white/10 flex items-center gap-4 transition-all hover:-translate-y-0.5 hover:shadow-2xl hover:border-white/20"
+            style={{ borderRadius: '16px', backgroundColor: '#1e293b42', backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+        >
+            <div className="w-[56px] h-[56px] flex items-center justify-center shrink-0" style={{ backgroundColor: theme.bg, borderRadius: '20px', fontSize: typeof Icon === 'string' ? '28px' : 'inherit' }}>
+                {typeof Icon === 'string' ? Icon : <Icon size={28} color={theme.text} />}
             </div>
             <div className="flex flex-col">
                 <span className="text-[0.8rem] uppercase tracking-wider font-bold text-muted-foreground mb-1">{label}</span>
-                <span className="text-[2rem] font-black text-white leading-none">{value}</span>
+                <span className="text-[2rem]  font-black text-white leading-none">{value}</span>
             </div>
         </div>
     );
@@ -89,6 +92,7 @@ export default function Catalog() {
     const [marca, setMarca] = useState('');
     const [material, setMaterial] = useState('PLA');
     const [cor, setCor] = useState('');
+    const [corHex, setCorHex] = useState('#00e1ff');
     const [precoKg, setPrecoKg] = useState('');
     const [pesoAtual, setPesoAtual] = useState('1000');
     const [editId, setEditId] = useState(null);
@@ -138,8 +142,9 @@ export default function Catalog() {
                 marca: marca.trim(),
                 material,
                 cor: cor.trim(),
+                cor_hex: corHex,
                 preco_kg: parseFloat(precoKg),
-                peso_atual: parseFloat(pesoAtual) || 1000
+                peso_atual: isNaN(parseFloat(pesoAtual)) ? 1000 : parseFloat(pesoAtual)
             };
 
             if (editId) {
@@ -166,6 +171,7 @@ export default function Catalog() {
         setMarca('');
         setMaterial('PLA');
         setCor('');
+        setCorHex('#00e1ff');
         setPrecoKg('');
         setPesoAtual('1000');
         setEditId(null);
@@ -177,6 +183,7 @@ export default function Catalog() {
         setMarca(f.marca);
         setMaterial(f.material);
         setCor(f.cor);
+        setCorHex(f.cor_hex || '#00e1ff');
         setPrecoKg(f.preco_kg);
         setPesoAtual(f.peso_atual);
         setIsFormOpen(true);
@@ -273,20 +280,14 @@ export default function Catalog() {
         <div className="max-w-[1240px] mx-auto w-full pb-16 px-4">
 
             {/* FEATURED STATS */}
-            <div className="grid md:grid-cols-3 gap-6 ">
-                <div className="bg-[#0B1120] rounded-xl border border-slate-700 overflow-hidden ">
-                    <StatCard icon={TrendingUp} label="Total de Itens" value={stats.itens} colorClass="blue" />
-                </div>
-                <div className="bg-white rounded-xl overflow-hidden shadow-sm">
-                    <StatCard icon={Scale} label="Estoque Total" value={stats.peso} colorClass="emerald" />
-                </div>
-                <div className="bg-white rounded-xl overflow-hidden shadow-sm">
-                    <StatCard icon={ShoppingBag} label="Valor do Estoque" value={stats.investimento} colorClass="orange" />
-                </div>
+            <div className="grid md:grid-cols-3 gap-6 " >
+                <StatCard icon="📈" label="Total de Itens" value={stats.itens} colorClass="blue" />
+                <StatCard icon="⚖️" label="Estoque Total" value={stats.peso} colorClass="emerald" />
+                <StatCard icon="💰" label="Valor do Estoque" value={stats.investimento} colorClass="orange" />
             </div>
 
             {/* CABEÇALHO COM BUSCA (Toolbar Refinada) */}
-            <div className="flex flex-col gap-8 mb-16 w-full">
+            <div className="flex flex-col gap-8  p-4 mb-16 w-full">
                 <div className="space-y-4">
                     <h1 className="text-white" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, letterSpacing: '-1.5px', marginBottom: '8px', lineHeight: 1.1 }}>
                         Catálogo de <span className="text-primary">Filamentos</span>
@@ -396,38 +397,44 @@ export default function Catalog() {
                     />
 
                     <div
-                        className="relative w-full bg-[#0f172a] animate-in zoom-in-95 fade-in duration-300 overflow-hidden"
                         style={{
-                            backgroundColor: '#0f172a',
-                            border: '2px solid rgba(255,255,255,0.8)',
-                            borderRadius: '48px',
-                            boxShadow: '0 0 0 1px rgba(255,255,255,0.1), 0 32px 128px rgba(0,0,0,1)',
+                            position: 'relative',
+                            width: '95%',
                             maxWidth: '600px',
-                            width: '95%'
+                            border: '1px solid rgba(255, 255, 255, 0.3)',
+                            borderRadius: '24px',
+                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            maxHeight: '90vh',
+                            color: 'white',
+                            zIndex: 10000
                         }}
                     >
                         {/* Header do Modal */}
-                        <div className="flex items-center justify-between p-8 pb-4 border-b border-white/5">
-                            <div className="flex items-center gap-4">
-                                <div className="p-3 bg-blue-500/20 rounded-2xl text-blue-400">
-                                    <Plus size={24} />
+                        <div style={{ padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                                <div style={{ padding: '10px', borderRadius: '12px', color: '#60a5fa' }}>
+                                    <Plus size={22} />
                                 </div>
-                                <div>
-                                    <h2 className="text-2xl font-black text-white">{editId ? "Editar Filamento" : "Novo Filamento"}</h2>
-                                    <p className="text-slate-400 font-medium text-sm">Preencha os dados abaixo para o inventário.</p>
+                                <div style={{ textAlign: 'left' }}>
+                                    <h2 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, color: 'white' }}>{editId ? "Editar Filamento" : "Novo Filamento"}</h2>
+                                    <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '4px 0 0 0' }}>Preencha os dados do seu inventário.</p>
                                 </div>
                             </div>
                             <button
                                 onClick={resetForm}
-                                className="p-2 hover:bg-white/10 rounded-full text-slate-400 hover:text-white transition-colors"
+                                style={{ padding: '16px', borderRadius: '50%', backgroundColor: 'transparent', color: '#ff0000ff', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(240, 10, 10, 0.1)'}
+                                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                             >
-                                <X size={24} />
+                                <X size={20} />
                             </button>
                         </div>
 
                         {/* Corpo do Form */}
-                        <form onSubmit={handleSubmit} className="p-8 space-y-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                            <div className="space-y-6">
+                        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', margin: 0, padding: 0, overflow: 'hidden' }}>
+                            <div style={{ padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '24px' }} className="custom-scrollbar">
                                 <InputGroup label="Marca do Filamento" fullWidth>
                                     <div className="relative">
                                         <input
@@ -453,9 +460,26 @@ export default function Catalog() {
                                         </select>
                                     </InputGroup>
                                     <InputGroup label="Cor / Nome">
-                                        <div className="relative">
-                                            <input style={inputStyle} placeholder="Ex: Vermelho Neon..." value={cor} onChange={e => setCor(e.target.value)} />
-                                            <Palette size={16} className="absolute right-3 top-3 text-muted-foreground" />
+                                        <div style={{ display: 'flex', gap: '8px' }}>
+                                            <div style={{ position: 'relative', flex: 1 }}>
+                                                <input style={inputStyle} placeholder="Ex: Vermelho Neon..." value={cor} onChange={e => setCor(e.target.value)} />
+                                                <Palette size={16} className="absolute right-3 top-3 text-muted-foreground" />
+                                            </div>
+                                            <input
+                                                type="color"
+                                                value={corHex}
+                                                onChange={e => setCorHex(e.target.value)}
+                                                style={{
+                                                    width: '42px',
+                                                    height: '42px',
+                                                    padding: '2px',
+                                                    backgroundColor: 'rgba(30, 41, 59, 0.5)',
+                                                    border: '1px solid var(--color-border)',
+                                                    borderRadius: '10px',
+                                                    cursor: 'pointer',
+                                                    flexShrink: 0
+                                                }}
+                                            />
                                         </div>
                                     </InputGroup>
                                 </div>
@@ -477,17 +501,34 @@ export default function Catalog() {
                             </div>
 
                             {/* Footer do Modal (Ações) */}
-                            <div className="flex justify-end gap-4 pt-4 border-t border-white/5">
+                            <div style={{ padding: '24px', borderTop: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'flex-end', gap: '16px', flexShrink: 0 }}>
                                 <button
                                     type="button"
                                     onClick={resetForm}
-                                    className="px-6 py-3 rounded-xl font-bold text-slate-400 hover:text-white transition-all"
+                                    style={{ padding: '0 24px', height: '48px', borderRadius: '12px', fontWeight: '700', color: '#94a3b8', backgroundColor: 'transparent', transition: 'all 0.2s' }}
+                                    onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.05)'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.backgroundColor = 'transparent'; }}
                                 >
                                     Cancelar
                                 </button>
                                 <button
                                     type="submit"
-                                    className="px-8 py-3.5 rounded-2xl font-black bg-blue-500 text-white hover:bg-blue-400 shadow-[0_8px_24px_rgba(59,130,246,0.4)] transition-all active:scale-95 flex items-center gap-2"
+                                    style={{
+                                        padding: '0 32px',
+                                        height: '52px',
+                                        borderRadius: '16px',
+                                        fontWeight: '900',
+                                        backgroundColor: '#00e1ffd5',
+                                        color: 'white',
+                                        boxShadow: '0 8px 16px rgba(78, 75, 75, 0.4)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        border: 'none',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseEnter={e => { e.currentTarget.style.backgroundColor = '#00e1ffff'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#00e1ffd5'; e.currentTarget.style.transform = 'translateY(0)'; }}
                                 >
                                     <Box size={20} />
                                     {editId ? 'Salvar Alterações' : 'Criar Filamento'}
@@ -632,13 +673,14 @@ export default function Catalog() {
                                                                 const isPurple = colorLower.includes('roxo');
                                                                 const isTransparent = colorLower.includes('transparent');
 
-                                                                const swatchColor = isBlack ? '#222' : isWhite ? '#f0f0f0' : isGray ? '#8a8d91' :
+                                                                const swatchColor = f.cor_hex || (isBlack ? '#222' : isWhite ? '#f0f0f0' : isGray ? '#8a8d91' :
                                                                     isRed ? '#dc2626' : isBlue ? '#2563eb' : isGreen ? '#16a34a' :
                                                                         isYellow ? '#eab308' : isOrange ? '#ea580c' : isPink ? '#ec4899' :
-                                                                            isPurple ? '#9333ea' : isTransparent ? 'rgba(200,200,200,0.3)' : '#6b7280';
+                                                                            isPurple ? '#9333ea' : isTransparent ? 'rgba(200,200,200,0.3)' : '#6b7280');
 
                                                                 const stockPercent = Math.min(100, Math.round((f.peso_atual / 1000) * 100));
-                                                                const barColor = stockPercent <= 15 ? '#ef4444' : stockPercent <= 40 ? '#f59e0b' : '#3b82f6';
+                                                                const isEsgotado = f.peso_atual <= 0;
+                                                                const barColor = f.peso_atual <= 150 ? '#ef4444' : stockPercent <= 40 ? '#f59e0b' : '#3b82f6';
 
                                                                 return (
                                                                     <div
@@ -646,6 +688,8 @@ export default function Catalog() {
                                                                         className="group/card"
                                                                         style={{
                                                                             backgroundColor: '#1e293b42',
+                                                                            backdropFilter: 'blur(12px)',
+                                                                            WebkitBackdropFilter: 'blur(12px)',
                                                                             borderRadius: '20px',
                                                                             padding: '24px',
                                                                             boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
@@ -680,10 +724,10 @@ export default function Catalog() {
                                                                             border: '1px solid rgba(255,255,255,0.07)'
                                                                         }}>
                                                                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', fontWeight: 700, marginBottom: '10px' }}>
-                                                                                <span style={{ color: 'rgba(148,163,184,1)' }}>Restante</span>
-                                                                                <span style={{ color: 'white' }}>
-                                                                                    {f.peso_atual}g{' '}
-                                                                                    <span style={{ fontWeight: 'normal', color: 'rgba(255,255,255,0.3)' }}>/ 1000g</span>
+                                                                                <span style={{ color: 'rgba(148,163,184,1)' }}>{isEsgotado ? 'Status' : 'Restante'}</span>
+                                                                                <span style={{ color: isEsgotado ? '#ef4444' : 'white' }}>
+                                                                                    {isEsgotado ? 'ESGOTADO' : `${f.peso_atual}g`}
+                                                                                    {!isEsgotado && <span style={{ fontWeight: 'normal', color: 'rgba(255,255,255,0.3)' }}> / 1000g</span>}
                                                                                 </span>
                                                                             </div>
                                                                             <div style={{ width: '100%', height: '8px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '4px', overflow: 'hidden', marginBottom: '10px' }}>
