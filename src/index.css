@@ -4,8 +4,8 @@
 :root {
   /* Fundo Escuro Profundo (Custom Navy) */
   --color-bg-main: #0e0e14;
-  --color-bg-sidebar: #131318;
-  --color-bg-card: #131318;
+  --color-bg-sidebar: #1e293b42;
+  --color-bg-card: #1e293b42;
   --color-bg-card-hover: #4b4b72;
 
   /* Detalhes Ciano / Azul / Verde */
@@ -397,12 +397,14 @@ button {
 /* ========================================= */
 /* RESPONSIVIDADE MOBILE                     */
 /* ========================================= */
-html, body {
+html,
+body {
   max-width: 100%;
   overflow-x: hidden;
 }
 
 @media (max-width: 768px) {
+
   /* Layout Principal App */
   .app-layout {
     flex-direction: column !important;
@@ -412,7 +414,8 @@ html, body {
 
   .main-content {
     padding: 1rem !important;
-    padding-bottom: 90px !important; /* Espaço para o menu inferior sobrepor */
+    padding-bottom: 90px !important;
+    /* Espaço para o menu inferior sobrepor */
   }
 
   /* Barra Lateral vira Menu Inferior */
@@ -435,7 +438,9 @@ html, body {
   }
 
   /* Ocultar elementos desnecessários na Navbar de celular */
-  .sidebar-header, .sidebar-user, .sidebar-footer {
+  .sidebar-header,
+  .sidebar-user,
+  .sidebar-footer {
     display: none !important;
   }
 
@@ -475,12 +480,12 @@ html, body {
     flex-direction: column !important;
     justify-content: center !important;
   }
-  
+
   .chart-donut {
     margin-left: 0 !important;
     margin: 0 auto !important;
   }
-  
+
   .chart-legend {
     position: relative !important;
     right: auto !important;
@@ -492,14 +497,14 @@ html, body {
     display: flex !important;
     justify-content: center !important;
   }
-  
+
   .chart-legend ul {
     display: flex !important;
     flex-wrap: wrap !important;
     justify-content: center !important;
     gap: 8px 16px !important;
   }
-  
+
   .chart-legend li {
     font-size: 11px !important;
     margin-bottom: 0 !important;
