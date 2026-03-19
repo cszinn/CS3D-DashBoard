@@ -99,10 +99,7 @@ export default function Calculator() {
     const [impressoraSelected, setImpressoraSelected] = useState(initialDraft.impressoraSelected ?? 'custom');
     const [consumoW, setConsumoW] = useState(initialDraft.consumoW ?? 350);
     const [custoKwh, setCustoKwh] = useState(initialDraft.custoKwh ?? 0.85);
-    const [custoFixoMes, setCustoFixoMes] = useState(0);
-    const [pecasEstMes, setPecasEstMes] = useState(50);
-    const [valorImpressora, setValorImpressora] = useState(2000);
-    const [vidaUtil, setVidaUtil] = useState(5000);
+
     const [margemFalhas, setMargemFalhas] = useState(initialDraft.margemFalhas ?? 5);
 
     // Novos Campos Granulares (STLHub)
@@ -171,8 +168,6 @@ export default function Calculator() {
         if (impressoraSelected !== 'custom') {
             const p = PRINTER_DB[impressoraSelected];
             setConsumoW(p.watts);
-            setValorImpressora(p.price);
-            setVidaUtil(p.life);
         }
     }, [impressoraSelected]);
 
@@ -273,7 +268,7 @@ export default function Calculator() {
             lucroLiquido: lucroLiquido,
             frete: frete
         });
-    }, [horas, minutos, peso, custoKg, consumoW, custoKwh, pecasEstMes, margemFalhas, acessorios, markup, imposto, taxaMaquininha, incluirTaxas, quantidade, depImpHoraria, depMaqHoraria, desBicoHoraria, freteEmbalagem]);
+    }, [horas, minutos, peso, custoKg, consumoW, custoKwh, margemFalhas, acessorios, markup, imposto, taxaMaquininha, incluirTaxas, quantidade, depImpHoraria, depMaqHoraria, desBicoHoraria, freteEmbalagem]);
 
     const handleFileUpload = async (e) => {
         const file = e.target.files[0];

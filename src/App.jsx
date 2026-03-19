@@ -8,6 +8,7 @@ import Calculator from './pages/Calculator'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Catalog from './pages/Catalog'
+import Settings from './pages/Settings'
 import ConfirmEmail from './pages/ConfirmEmail'
 import './App.css'
 
@@ -21,6 +22,7 @@ function DashboardLayout() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/calculadora" element={<Calculator />} />
             <Route path="/catalogo" element={<Catalog />} />
+            <Route path="/configuracoes" element={<Settings />} />
           </Routes>
         </main>
       </div>

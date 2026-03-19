@@ -12,12 +12,8 @@ import {
     DollarSign,
     Box,
     ChevronDown,
-    ChevronRight,
     Tag,
     AlertCircle,
-    TrendingUp,
-    Scale,
-    ShoppingBag,
     X
 } from 'lucide-react';
 
@@ -67,11 +63,7 @@ const StatCard = ({ icon: Icon, label, value, colorClass = "blue" }) => {
     );
 };
 
-const SectionHeader = ({ icon: Icon, title, iconColor = "text-primary" }) => (
-    <h3 style={{ fontSize: '1.25rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem', color: 'white' }}>
-        <Icon size={20} className={iconColor} /> {title}
-    </h3>
-);
+
 
 const InputGroup = ({ label, children, fullWidth = false }) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: fullWidth ? '100% ' : 'auto', flex: fullWidth ? 'none' : 1 }}>

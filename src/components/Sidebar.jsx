@@ -1,4 +1,3 @@
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
     LayoutDashboard,
@@ -7,7 +6,6 @@ import {
     Box,
     DollarSign,
     Settings,
-    Zap,
     LogOut
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -59,25 +57,6 @@ const Sidebar = () => {
                 />
             </div>
 
-            {/* User Info - NOW AT TOP */}
-            <div className="sidebar-user" style={{ padding: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{
-                        width: '36px', height: '36px', borderRadius: '50%',
-                        background: 'var(--color-bg-main)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        border: '1px solid var(--color-border)', fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--color-accent)'
-                    }}>
-                        {user?.email?.substring(0, 2).toUpperCase() || 'CS'}
-                    </div>
-                    <div style={{ overflow: 'hidden' }}>
-                        <div style={{ fontSize: '0.85rem', fontWeight: '600', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {user?.user_metadata?.first_name || 'Carlos Santos'}
-                        </div>
-                        <div style={{ fontSize: '0.7rem', color: 'var(--color-accent)', textTransform: 'uppercase', fontWeight: '700' }}>Plano Free</div>
-                    </div>
-                </div>
-            </div>
 
             {/* Menu */}
             <nav className="sidebar-nav" style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
@@ -102,8 +81,30 @@ const Sidebar = () => {
                 ))}
             </nav>
 
-            {/* Footer Logout */}
-            <div className="sidebar-footer" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+            {/* Footer with User Info and Logout */}
+            <div className="sidebar-footer" style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 8px' }}>
+                    <div style={{
+                        width: '40px', height: '40px', borderRadius: '50%',
+                        background: 'var(--color-bg-main)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        border: '1px solid var(--color-border)', fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--color-accent)',
+                        overflow: 'hidden'
+                    }}>
+                        {user?.user_metadata?.avatar_url ? (
+                            <img src={user.user_metadata.avatar_url} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
+                        ) : (
+                            user?.user_metadata?.first_name?.substring(0, 2).toUpperCase() || user?.email?.substring(0, 2).toUpperCase() || 'CS'
+                        )}
+                    </div>
+                    <div style={{ overflow: 'hidden' }}>
+                        <div style={{ fontSize: '0.9rem', fontWeight: '700', color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {user?.user_metadata?.first_name || 'Usuário'}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--color-accent)', textTransform: 'uppercase', fontWeight: '800' }}>Plano Free</div>
+                    </div>
+                </div>
+
                 <button
                     onClick={handleSignOut}
                     style={{

@@ -3,7 +3,7 @@ import { useRealTime } from '../context/RealTimeContext';
 import { RefreshCw, Zap, Package, BarChart3, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const Dashboard = () => {
-    const { stats, orders, connectedUsers, isSyncing, refreshData } = useRealTime();
+    const { stats, orders, isSyncing, refreshData } = useRealTime();
 
     return (
         <div style={{ width: '100%', maxWidth: '1400px', margin: '0 auto' }} className="animate-fadeIn">
