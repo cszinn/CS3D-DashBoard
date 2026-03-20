@@ -604,6 +604,43 @@ export default function Calculator() {
         }
     };
 
+    const lancarFinanceiro = async () => {
+        if (!user) {
+            setMsg({ type: 'error', text: 'Você precisa estar logado.' });
+            return;
+        }
+        try {
+            setLoading(true);
+            const vendas = {
+                user_id: user.id,
+                tipo: 'entrada',
+                categoria: 'Venda Peça',
+                valor: resultados.precoTotalLote,
+                descricao: nomeProjeto || 'Venda Rápida (Calculadora)'
+            };
+            const despesas = {
+                user_id: user.id,
+                tipo: 'saida',
+                categoria: 'Custo Produção',
+                valor: resultados.custoTotalLote,
+                descricao: `Custo Prod. (Material + Energia + Máquina): ${nomeProjeto || 'Peça sem nome'}`
+            };
+
+            const inserts = [vendas];
+            if (resultados.custoTotalLote > 0) inserts.push(despesas);
+
+            const { error: errorFin } = await supabase.from('financas').insert(inserts);
+            if (errorFin) throw errorFin;
+
+            setMsg({ type: 'success', text: 'Lançado no Financeiro com sucesso!' });
+        } catch (err) {
+            setMsg({ type: 'error', text: 'Erro ao lançar no financeiro: ' + err.message });
+        } finally {
+            setLoading(false);
+            setTimeout(() => setMsg({ type: '', text: '' }), 3000);
+        }
+    };
+
     // --- COMPONENTES AUXILIARES DE UI (ESTILO PREMIUM) ---
     const SummaryPill = ({ label, value, colorHex, colorRGB }) => (
         <div style={{
@@ -1132,6 +1169,9 @@ export default function Calculator() {
                             </button>
                             <button onClick={saveOrcamento} className="h-12 rounded-xl text-white font-bold transition-all shadow-lg flex items-center justify-center gap-2" style={{ backgroundColor: '#1e293b', border: '1px solid #334155' }}>
                                 <Save size={18} /> Salvar Projeto (BD)
+                            </button>
+                            <button onClick={lancarFinanceiro} className="h-12 rounded-xl text-white font-bold transition-all shadow-lg flex items-center justify-center gap-2 hover:bg-sky-500" style={{ backgroundColor: '#0284c7', border: '1px solid #0369a1' }}>
+                                <DollarSign size={18} /> Lançar no Financeiro
                             </button>
                             <button onClick={copyToWhatsapp} className="h-12 rounded-xl text-white font-bold transition-all shadow-lg flex items-center justify-center gap-2 hover:bg-emerald-600" style={{ backgroundColor: '#059669' }}>
                                 <Send size={18} /> Resumo p/ WhatsApp

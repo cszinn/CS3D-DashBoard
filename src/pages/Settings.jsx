@@ -81,7 +81,7 @@ const getCroppedImg = async (imageSrc, pixelCrop) => {
 };
 
 export default function Settings() {
-    const { user } = useAuth();
+    const { user, updateUserMetadata } = useAuth();
     
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -135,9 +135,9 @@ export default function Settings() {
                 }
             });
             if (error) throw error;
-            setMsg({ type: 'success', text: 'Dados atualizados com sucesso!' });
+            setMsg({ type: 'success', text: 'Perfil atualizado com sucesso!' });
         } catch (err) {
-            setMsg({ type: 'error', text: 'Erro ao atualizar dados: ' + err.message });
+            setMsg({ type: 'error', text: 'Erro ao atualizar: ' + err.message });
         } finally {
             setLoading(false);
             setTimeout(() => setMsg({ type: '', text: '' }), 4000);
