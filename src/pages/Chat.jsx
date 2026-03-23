@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Send, Paperclip, FileText, Download, Trash2, Smile, X, Globe, User } from 'lucide-react';
+import { Send, Paperclip, FileText, Download, Trash2, Smile, X, Globe, User, ArrowLeft } from 'lucide-react';
 import EmojiPicker from 'emoji-picker-react';
 
 export default function Chat() {
@@ -12,6 +11,7 @@ export default function Chat() {
     const [usersList, setUsersList] = useState([]);
     const [activeContact, setActiveContact] = useState(globalChat);
     const activeContactRef = useRef('global'); // Para uso dentro dos Callbacks de Realtime
+    const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [newMessage, setNewMessage] = useState('');
     
@@ -274,7 +274,7 @@ export default function Chat() {
     // RENDERING
     // ==========================================
     return (
-        <div style={{ maxWidth: '1400px', margin: '0 auto', height: '100%', display: 'flex', gap: '24px', paddingTop: '1rem', paddingBottom: '2rem' }} className="animate-in fade-in duration-500">
+        <div className="flex w-full h-[85vh] md:h-[calc(100vh-120px)] max-w-[1400px] mx-auto md:gap-6 pt-2 md:pt-4 pb-4 md:pb-8 animate-in fade-in duration-500">
             
             {/* Modal de Preview de Imagem (Global) */}
             {previewImage && (
@@ -285,7 +285,7 @@ export default function Chat() {
             )}
 
             {/* ======================= COLUNA ESQUERDA (Lista de Contatos do Sistema) ======================= */}
-            <div style={{ width: '300px', backgroundColor: '#13171e', borderRadius: '16px', border: '1px solid #232830', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <div className={`${isMobileChatOpen ? 'hidden md:flex' : 'flex'} w-full md:w-[320px] bg-[#13171e] rounded-2xl border-0 md:border md:border-[#232830] flex-col overflow-hidden shrink-0`}>
                 <div style={{ padding: '20px', borderBottom: '1px solid #232830' }}>
                     <h2 style={{ color: 'white', fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Comunicações</h2>
                 </div>
@@ -293,7 +293,7 @@ export default function Chat() {
                 <div style={{ flex: 1, overflowY: 'auto', padding: '12px' }}>
                     {/* Botão Fixo Grupo Geral */}
                     <div 
-                        onClick={() => setActiveContact(globalChat)}
+                        onClick={() => { setActiveContact(globalChat); setIsMobileChatOpen(true); }}
                         style={{ 
                             padding: '12px 16px', borderRadius: '12px', cursor: 'pointer', marginBottom: '16px',
                             backgroundColor: activeContact?.id === 'global' ? 'rgba(255,255,255,0.05)' : 'transparent',
@@ -325,7 +325,7 @@ export default function Chat() {
                         usersList.map(contact => (
                             <div 
                                 key={contact.id} 
-                                onClick={() => setActiveContact(contact)}
+                                onClick={() => { setActiveContact(contact); setIsMobileChatOpen(true); }}
                                 style={{ 
                                     padding: '12px 16px', borderRadius: '12px', cursor: 'pointer', marginBottom: '4px',
                                     backgroundColor: activeContact?.id === contact.id ? 'rgba(255,255,255,0.05)' : 'transparent',
@@ -357,18 +357,21 @@ export default function Chat() {
             </div>
 
             {/* ======================= COLUNA DIREITA (Conversa Ativa) ======================= */}
-            <div style={{ flex: 1, backgroundColor: '#13171e', borderRadius: '16px', border: '1px solid #232830', display: 'flex', flexDirection: 'column', overflow: 'hidden', position: 'relative' }}>
+            <div className={`${!isMobileChatOpen ? 'hidden md:flex' : 'flex'} flex-1 bg-[#13171e] md:rounded-2xl border-0 md:border md:border-[#232830] flex-col overflow-hidden relative`}>
                 
                 {/* Chat Header */}
-                <div style={{ padding: '20px 24px', borderBottom: '1px solid #232830', display: 'flex', alignItems: 'center', gap: '16px', backgroundColor: 'rgba(255,255,255,0.02)' }}>
-                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: activeContact.id === 'global' ? '#0ea5e9' : '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: activeContact.id === 'global' ? '#0d1117' : '#8b949e', overflow: 'hidden' }}>
+                <div style={{ padding: '16px 20px', borderBottom: '1px solid #232830', display: 'flex', alignItems: 'center', gap: '16px', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+                    <button className="md:hidden text-slate-400 bg-transparent border-none cursor-pointer flex items-center justify-center p-2 -ml-2 rounded-full hover:bg-white/10 transition-colors" onClick={() => setIsMobileChatOpen(false)}>
+                        <ArrowLeft size={24} />
+                    </button>
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: activeContact.id === 'global' ? '#0ea5e9' : '#1e293b', display: 'flex', alignItems: 'center', justifyContent: 'center', color: activeContact.id === 'global' ? '#0d1117' : '#8b949e', overflow: 'hidden', flexShrink: 0 }}>
                         {activeContact.id === 'global' ? <Globe size={20} /> : (activeContact.avatar_url ? <img src={activeContact.avatar_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <User size={20} />)}
                     </div>
-                    <div>
-                        <h3 style={{ color: 'white', margin: 0, fontSize: '1.1rem', fontWeight: 700 }}>
+                    <div style={{ overflow: 'hidden' }}>
+                        <h3 style={{ color: 'white', margin: 0, fontSize: '1.1rem', fontWeight: 700, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
                             {activeContact.full_name}
                         </h3>
-                        <span style={{ color: '#8b949e', fontSize: '0.8rem' }}>{activeContact.id === 'global' ? 'Visível para todos os usuários' : 'Mensagem Direta Criptografada'}</span>
+                        <span style={{ color: '#8b949e', fontSize: '0.8rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden', display: 'block' }}>{activeContact.id === 'global' ? 'Visível para todos' : 'Mensagem Privada'}</span>
                     </div>
                 </div>
 
@@ -476,8 +479,8 @@ export default function Chat() {
                     {/* Input Area */}
                     <div style={{ padding: '16px 24px', backgroundColor: '#181d26', borderTop: '1px solid #232830', position: 'relative' }}>
                         {showEmojiPicker && (
-                            <div ref={emojiPickerRef} style={{ position: 'absolute', bottom: '80px', left: '24px', zIndex: 10, boxShadow: '0 10px 30px rgba(0,0,0,0.5)', borderRadius: '8px' }}>
-                                <EmojiPicker theme="dark" onEmojiClick={(e) => setNewMessage(p => p + e.emoji)} searchDisabled={true} skinTonesDisabled={true} />
+                            <div ref={emojiPickerRef} style={{ position: 'absolute', bottom: '80px', left: '16px', zIndex: 10, boxShadow: '0 10px 30px rgba(0,0,0,0.5)', borderRadius: '8px', maxWidth: 'calc(100vw - 32px)' }}>
+                                <EmojiPicker theme="dark" onEmojiClick={(e) => setNewMessage(p => p + e.emoji)} searchDisabled={true} skinTonesDisabled={true} width={Math.min(300, window.innerWidth - 32)} height={350} />
                             </div>
                         )}
 

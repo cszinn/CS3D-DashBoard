@@ -25,6 +25,15 @@ import logoCreality from '../assets/catalog/creality.svg';
 import logoKrei3D from '../assets/catalog/krei 3d.svg';
 import iconSpool from '../assets/catalog/Rolo de filamento.svg';
 
+import logoBambuLab from '../assets/catalog/bambu lab.svg';
+import logoCctree from '../assets/catalog/cctree.svg';
+import logoF3d from '../assets/catalog/f3d.svg';
+import logoGeeetech from '../assets/catalog/geeetech.svg';
+import logoNational from '../assets/catalog/national.svg';
+import logoOverture from '../assets/catalog/overture.svg';
+import logoTopink from '../assets/catalog/topink.svg';
+import logoYxpolyer from '../assets/catalog/yxpolyer.svg';
+
 const inputStyle = {
     height: '42px',
     padding: '10px 14px',
@@ -586,6 +595,14 @@ export default function Catalog() {
                                             {brandKey.toUpperCase().includes('VOOLT') && <img src={logoVoolt} width="48" height="48" style={{ objectFit: 'contain' }} alt="" />}
                                             {brandKey.toUpperCase().includes('CREALITY') && <img src={logoCreality} width="48" height="48" style={{ objectFit: 'contain' }} alt="" />}
                                             {brandKey.toUpperCase().includes('KREI') && <img src={logoKrei3D} width="48" height="48" style={{ objectFit: 'contain' }} alt="" />}
+                                            {brandKey.toUpperCase().includes('BAMBU') && <img src={logoBambuLab} width="48" height="48" style={{ objectFit: 'contain' }} alt="" />}
+                                            {brandKey.toUpperCase().includes('CCTREE') && <img src={logoCctree} width="48" height="48" style={{ objectFit: 'contain' }} alt="" />}
+                                            {brandKey.toUpperCase().includes('F3D') && <img src={logoF3d} width="48" height="48" style={{ objectFit: 'contain' }} alt="" />}
+                                            {brandKey.toUpperCase().includes('GEEE') && <img src={logoGeeetech} width="48" height="48" style={{ objectFit: 'contain' }} alt="" />}
+                                            {brandKey.toUpperCase().includes('NATIONAL') && <img src={logoNational} width="48" height="48" style={{ objectFit: 'contain' }} alt="" />}
+                                            {brandKey.toUpperCase().includes('OVERTURE') && <img src={logoOverture} width="48" height="48" style={{ objectFit: 'contain' }} alt="" />}
+                                            {brandKey.toUpperCase().includes('TOPINK') && <img src={logoTopink} width="48" height="48" style={{ objectFit: 'contain' }} alt="" />}
+                                            {brandKey.toUpperCase().includes('YXPOLYER') && <img src={logoYxpolyer} width="48" height="48" style={{ objectFit: 'contain' }} alt="" />}
                                             {!['3D PRIME', '3D LAB', 'VOOLT', 'CREALITY', 'KREI'].some(b => brandKey.toUpperCase().includes(b)) && <Package size={36} style={{ color: 'rgba(255,255,255,0.4)' }} />}
                                         </span>
                                         {brandInfo.displayName}
