@@ -3,7 +3,6 @@ import {
     LayoutDashboard,
     Calculator as CalcIcon,
     Layers,
-    MessageSquare,
     DollarSign,
     Settings,
     LogOut
@@ -18,7 +17,6 @@ const Sidebar = () => {
         { name: 'Dashboard', path: '/', icon: LayoutDashboard },
         { name: 'Calculadora', path: '/calculadora', icon: CalcIcon },
         { name: 'Catálogo', path: '/catalogo', icon: Layers },
-        { name: 'Chat', path: '/chat', icon: MessageSquare },
         { name: 'Financeiro', path: '/financeiro', icon: DollarSign },
         { name: 'Configurações', path: '/configuracoes', icon: Settings }
     ];

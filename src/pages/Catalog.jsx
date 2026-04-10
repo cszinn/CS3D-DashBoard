@@ -34,6 +34,19 @@ import logoOverture from '../assets/catalog/overture.svg';
 import logoTopink from '../assets/catalog/topink.svg';
 import logoYxpolyer from '../assets/catalog/yxpolyer.svg';
 
+const BRAND_MATERIALS = {
+    "Bambu Lab": ["PLA Basic/Lite", "PLA Matte", "PLA Silk/Metal", "PETG Basic/HF", "ABS", "ASA", "TPU", "PC/PA/Outros"],
+    "3D LAB": ["PLA Speed/Premium", "PLA Silk/Especial", "PETG", "ABS", "TPU", "FLEX/Outros"],
+    "3D Prime": ["PLA Speed/Premium", "PLA Silk", "PETG", "ABS", "TPU", "Outros"],
+    "Voolt3D": ["PLA/PLA+", "PLA Silk/Bicolor", "PETG", "ABS Premium", "TPU", "Outros"],
+    "Creality": ["PLA", "Hyper PLA", "PLA Silk", "PETG", "ABS", "TPU", "Outros"],
+    "Krei 3D": ["PLA", "PLA Silk", "PETG", "ABS", "TPU", "Outros"],
+    "F3D": ["PLA", "PLA Silk", "PETG", "ABS", "TPU", "Outros"],
+    "CCTREE": ["PLA", "PETG", "ABS", "TPU", "Outros"],
+    "default": ["PLA", "PLA Premium", "PLA Silk", "PETG", "ABS", "TPU", "ASA", "Nylon", "Resina", "Outro"]
+};
+
+
 const inputStyle = {
     height: '42px',
     padding: '10px 14px',
@@ -91,7 +104,9 @@ export default function Catalog() {
     // Form States
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [marca, setMarca] = useState('');
-    const [material, setMaterial] = useState('PLA');
+    const [novaMarca, setNovaMarca] = useState('');
+    const [material, setMaterial] = useState('');
+    const [novoMaterial, setNovoMaterial] = useState('');
     const [cor, setCor] = useState('');
     const [corHex, setCorHex] = useState('#00e1ff');
     const [precoKg, setPrecoKg] = useState('');
@@ -131,7 +146,10 @@ export default function Catalog() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!marca || !cor || !precoKg) {
+        const mrc = marca === '_novo_' ? novaMarca.trim() : marca.trim();
+        const mat = material === '_novo_' ? novoMaterial.trim() : material.trim();
+
+        if (!mrc || !mat || !cor || !precoKg) {
             setMsg({ type: 'error', text: 'Preencha todos os campos obrigatórios' });
             return;
         }
@@ -140,8 +158,8 @@ export default function Catalog() {
         try {
             const payload = {
                 user_id: user.id,
-                marca: marca.trim(),
-                material,
+                marca: mrc,
+                material: mat,
                 cor: cor.trim(),
                 cor_hex: corHex,
                 preco_kg: parseFloat(precoKg),
@@ -170,7 +188,9 @@ export default function Catalog() {
 
     const resetForm = () => {
         setMarca('');
-        setMaterial('PLA');
+        setNovaMarca('');
+        setMaterial('');
+        setNovoMaterial('');
         setCor('');
         setCorHex('#00e1ff');
         setPrecoKg('');
@@ -190,6 +210,14 @@ export default function Catalog() {
         setIsFormOpen(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
+
+    // Computação de valores únicos com base no banco de dados
+    const bdBrands = useMemo(() => Array.from(new Set(filamentos.map(f => f.marca.trim()))).sort(), [filamentos]);
+    const bdMaterials = useMemo(() => {
+        if (!marca || marca === '_novo_') return [];
+        return Array.from(new Set(filamentos.filter(f => f.marca.trim() === marca.trim()).map(f => f.material.trim()))).sort();
+    }, [filamentos, marca]);
+
 
     const deleteFilamento = async (id) => {
         if (!window.confirm("Deseja excluir este filamento permanentemente?")) return;
@@ -276,6 +304,12 @@ export default function Catalog() {
     const uniqueBrands = useMemo(() =>
         Array.from(new Set(filamentos.map(f => f.marca.trim()))).sort()
         , [filamentos]);
+
+    // Lista de Materiais Únicos (baseado na marca selecionada, ou todos se vazio)
+    const uniqueMaterials = useMemo(() => {
+        const filtered = marca.trim() ? filamentos.filter(f => f.marca.trim().toLowerCase() === marca.trim().toLowerCase()) : filamentos;
+        return Array.from(new Set(filtered.map(f => f.material.trim()))).sort();
+    }, [filamentos, marca]);
 
     return (
         <div className="max-w-[1240px] mx-auto w-full pb-16 px-4">
@@ -436,30 +470,60 @@ export default function Catalog() {
                         {/* Corpo do Form */}
                         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', margin: 0, padding: 0, overflow: 'hidden' }}>
                             <div style={{ padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '24px' }} className="custom-scrollbar">
-                                <InputGroup label="Marca do Filamento" fullWidth>
-                                    <div className="relative">
-                                        <input
-                                            style={inputStyle}
-                                            list="brand-suggestions"
-                                            placeholder="Digite ou selecione..."
-                                            value={marca}
-                                            onChange={e => setMarca(e.target.value)}
-                                        />
-                                        <datalist id="brand-suggestions">
-                                            {uniqueBrands.map(b => <option key={b} value={b} />)}
-                                        </datalist>
-                                        <Search size={14} className="absolute right-3 top-3.5 text-muted-foreground pointer-events-none" />
-                                    </div>
-                                </InputGroup>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <InputGroup label="Marca do Filamento" fullWidth>
+                                        <div className="relative" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                            <select
+                                                style={inputStyle}
+                                                value={marca}
+                                                onChange={e => setMarca(e.target.value)}
+                                            >
+                                                <option value="" disabled style={{ backgroundColor: '#0f172a' }}>Selecione uma Marca...</option>
+                                                {bdBrands.map(b => (
+                                                    <option key={b} value={b} style={{ backgroundColor: '#0f172a' }}>{b}</option>
+                                                ))}
+                                                <option value="_novo_" style={{ backgroundColor: '#1e293b', fontWeight: 'bold' }}>+ Adicionar Nova Marca...</option>
+                                            </select>
+                                            {marca === '_novo_' && (
+                                                <input
+                                                    style={inputStyle}
+                                                    placeholder="Digite o nome da nova marca..."
+                                                    value={novaMarca}
+                                                    onChange={e => setNovaMarca(e.target.value)}
+                                                />
+                                            )}
+                                        </div>
+                                    </InputGroup>
+
+                                    <InputGroup label="Tipo de Material">
+                                        <div className="relative" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                            <select
+                                                style={inputStyle}
+                                                value={material}
+                                                onChange={e => setMaterial(e.target.value)}
+                                            >
+                                                <option value="" disabled style={{ backgroundColor: '#0f172a' }}>Selecione o Material...</option>
+                                                {bdMaterials.map(m => (
+                                                    <option key={m} value={m} style={{ backgroundColor: '#0f172a' }}>{m}</option>
+                                                ))}
+                                                {marca && marca !== '_novo_' && bdMaterials.length === 0 && (
+                                                    <option disabled style={{ backgroundColor: '#0f172a', fontStyle: 'italic', opacity: 0.5 }}>Nenhum material cadastrado.</option>
+                                                )}
+                                                <option value="_novo_" style={{ backgroundColor: '#1e293b', fontWeight: 'bold' }}>+ Adicionar Novo Material...</option>
+                                            </select>
+                                            {material === '_novo_' && (
+                                                <input
+                                                    style={inputStyle}
+                                                    placeholder="Digite o nome do novo material..."
+                                                    value={novoMaterial}
+                                                    onChange={e => setNovoMaterial(e.target.value)}
+                                                />
+                                            )}
+                                        </div>
+                                    </InputGroup>
+                                </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <InputGroup label="Tipo de Material">
-                                        <select style={inputStyle} value={material} onChange={e => setMaterial(e.target.value)}>
-                                            {["PLA", "ABS", "PETG", "TPU", "ASA", "Nylon", "Outro"].map(m => (
-                                                <option key={m} value={m} style={{ backgroundColor: '#0f172a' }}>{m}</option>
-                                            ))}
-                                        </select>
-                                    </InputGroup>
                                     <InputGroup label="Cor / Nome">
                                         <div style={{ display: 'flex', gap: '8px' }}>
                                             <div style={{ position: 'relative', flex: 1 }}>

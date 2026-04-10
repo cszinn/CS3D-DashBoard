@@ -10,7 +10,6 @@ import Register from './pages/Register'
 import Catalog from './pages/Catalog'
 import Settings from './pages/Settings'
 import Financeiro from './pages/Financeiro'
-import Chat from './pages/Chat'
 import ConfirmEmail from './pages/ConfirmEmail'
 import './App.css'
 
@@ -26,7 +25,6 @@ function DashboardLayout() {
             <Route path="/catalogo" element={<Catalog />} />
             <Route path="/configuracoes" element={<Settings />} />
             <Route path="/financeiro" element={<Financeiro />} />
-            <Route path="/chat" element={<Chat />} />
           </Routes>
         </main>
       </div>
